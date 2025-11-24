@@ -11,6 +11,7 @@ export function KeyManagementTab() {
   const [isLoadingKeys, setIsLoadingKeys] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(true); // Starts unlocked with auto-passphrase
+  const [expandedKeyId, setExpandedKeyId] = useState<string | null>(null);
 
   const [error, setError] = useState<string | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -195,8 +196,8 @@ export function KeyManagementTab() {
           <button
             onClick={handleGenerateKeys}
             disabled={isGenerating}
-            style={{ color: '#000000' }}
-            className="mt-6 w-full px-6 py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-lg font-semibold transition-colors text-base shadow-md hover:shadow-lg disabled:shadow-none flex items-center justify-center whitespace-nowrap"
+            style={{ color: '#ffffff' }}
+            className="mt-6 w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-lg font-semibold transition-colors text-base shadow-md hover:shadow-lg disabled:shadow-none flex items-center justify-center whitespace-nowrap"
           >
             {isGenerating ? '⏳ Generating...' : '🔑 Generate New Keys'}
           </button>
@@ -288,104 +289,126 @@ export function KeyManagementTab() {
         ) : storedKeys.length === 0 ? (
           <p className="text-slate-500 text-sm italic py-4">No keys stored yet. Generate and store keys to use them in encryption and decryption.</p>
         ) : (
-          <div className="space-y-3">
-            {storedKeys.map((key, index) => (
-              <div key={key.id} className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-semibold text-slate-900">{key.name}</h4>
+          <div className="space-y-2">
+            {storedKeys.map((key, index) => {
+              const isExpanded = expandedKeyId === key.id;
+              return (
+                <div key={key.id} className="border border-slate-200 rounded-lg overflow-hidden">
+                  {/* Accordion Header */}
                   <button
-                    onClick={() => handleDeleteKey(index)}
-                    className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs font-medium transition-colors"
+                    onClick={() => setExpandedKeyId(isExpanded ? null : key.id)}
+                    className="w-full px-4 py-3 bg-slate-50 hover:bg-slate-100 flex items-center justify-between transition-colors text-left"
                   >
-                    Delete
+                    <div className="flex items-center gap-3 flex-1">
+                      <span className="text-lg">{isExpanded ? '▼' : '▶'}</span>
+                      <h4 className="font-semibold text-slate-900">{key.name}</h4>
+                      <span className="text-xs text-slate-500 ml-auto">
+                        {key.privateKey ? '🔐 Full' : '🔒 Public only'}
+                      </span>
+                    </div>
                   </button>
-                </div>
 
-                {deleteConfirm === key.id && (
-                  <div className="bg-red-50 border border-red-200 rounded p-3 flex items-center justify-between gap-2">
-                    <span className="text-sm text-red-800">Delete this key pair permanently?</span>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => confirmDelete(index)}
-                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-medium"
-                      >
-                        Delete
-                      </button>
-                      <button
-                        onClick={() => setDeleteConfirm(null)}
-                        className="px-3 py-1 bg-slate-400 hover:bg-slate-500 text-white rounded text-xs font-medium"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Public Key */}
-                <div>
-                  <div className="text-xs font-medium text-slate-600 mb-1">Public Key</div>
-                  <div className="flex gap-2">
-                    <textarea
-                      readOnly
-                      value={key.publicKey}
-                      className="flex-1 px-2 py-1 bg-white border border-slate-300 rounded font-mono text-xs text-slate-700"
-                      rows={2}
-                    />
-                    <div className="flex flex-col gap-1">
-                      <button
-                        onClick={() => copyToClipboard(key.publicKey)}
-                        className="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
-                        title="Copy to clipboard"
-                      >
-                        Copy
-                      </button>
-                      <button
-                        onClick={() => handleUsePublicKey(key.publicKey, key.name)}
-                        className="px-2 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
-                        title="Add as encryption recipient"
-                      >
-                        Use
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Private Key */}
-                {key.privateKey && (
-                  <div>
-                    <div className="text-xs font-medium text-slate-600 mb-1">Private Key</div>
-                    <div className="flex gap-2">
-                      <textarea
-                        readOnly
-                        value={key.privateKey}
-                        className="flex-1 px-2 py-1 bg-white border border-slate-300 rounded font-mono text-xs text-slate-700"
-                        rows={3}
-                      />
-                      <div className="flex flex-col gap-1">
+                  {/* Accordion Content */}
+                  {isExpanded && (
+                    <div className="px-4 py-4 bg-slate-50 border-t border-slate-200 space-y-3">
+                      {/* Delete Button - Always visible in expanded view */}
+                      <div className="flex justify-end">
                         <button
-                          onClick={() => copyToClipboard(key.privateKey!)}
-                          className="px-2 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
-                          title="Copy to clipboard"
+                          onClick={() => handleDeleteKey(index)}
+                          className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs font-medium transition-colors"
                         >
-                          Copy
-                        </button>
-                        <button
-                          onClick={() => handleUsePrivateKey(key.privateKey!, key.name)}
-                          className="px-2 py-1 bg-purple-500 hover:bg-purple-600 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
-                          title="Load for decryption"
-                        >
-                          Use
+                          🗑️ Delete
                         </button>
                       </div>
-                    </div>
-                  </div>
-                )}
 
-                {key.comment && (
-                  <p className="text-xs text-slate-500 italic">{key.comment}</p>
-                )}
-              </div>
-            ))}
+                      {deleteConfirm === key.id && (
+                        <div className="bg-red-50 border border-red-200 rounded p-3 flex items-center justify-between gap-2">
+                          <span className="text-sm text-red-800">Delete this key pair permanently?</span>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => confirmDelete(index)}
+                              className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-medium"
+                            >
+                              Delete
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirm(null)}
+                              className="px-3 py-1 bg-slate-400 hover:bg-slate-500 text-white rounded text-xs font-medium"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Public Key */}
+                      <div>
+                        <div className="text-xs font-medium text-slate-600 mb-1">Public Key</div>
+                        <div className="flex gap-2">
+                          <textarea
+                            readOnly
+                            value={key.publicKey}
+                            className="flex-1 px-2 py-1 bg-white border border-slate-300 rounded font-mono text-xs text-slate-700"
+                            rows={2}
+                          />
+                          <div className="flex flex-col gap-1">
+                            <button
+                              onClick={() => copyToClipboard(key.publicKey)}
+                              className="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
+                              title="Copy to clipboard"
+                            >
+                              Copy
+                            </button>
+                            <button
+                              onClick={() => handleUsePublicKey(key.publicKey, key.name)}
+                              className="px-2 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
+                              title="Add as encryption recipient"
+                            >
+                              Use
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Private Key */}
+                      {key.privateKey && (
+                        <div>
+                          <div className="text-xs font-medium text-slate-600 mb-1">Private Key</div>
+                          <div className="flex gap-2">
+                            <textarea
+                              readOnly
+                              value={key.privateKey}
+                              className="flex-1 px-2 py-1 bg-white border border-slate-300 rounded font-mono text-xs text-slate-700"
+                              rows={3}
+                            />
+                            <div className="flex flex-col gap-1">
+                              <button
+                                onClick={() => copyToClipboard(key.privateKey!)}
+                                className="px-2 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
+                                title="Copy to clipboard"
+                              >
+                                Copy
+                              </button>
+                              <button
+                                onClick={() => handleUsePrivateKey(key.privateKey!, key.name)}
+                                className="px-2 py-1 bg-purple-500 hover:bg-purple-600 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
+                                title="Load for decryption"
+                              >
+                                Use
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {key.comment && (
+                        <p className="text-xs text-slate-500 italic">{key.comment}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
