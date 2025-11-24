@@ -146,6 +146,17 @@ export function DecryptionTab() {
             return;
         }
 
+        // Validate key format before attempting decryption
+        const trimmed = decryption.identity.trim();
+        const isAgeKey = trimmed.startsWith('AGE-SECRET-KEY-');
+        const isSshKey = trimmed.startsWith('-----BEGIN') || trimmed.startsWith('ssh-');
+        
+        if (!isAgeKey && !isSshKey) {
+            showToast('error', 'Invalid key format', 
+                'Key must be either:\n• Age key: AGE-SECRET-KEY-...\n• SSH key: -----BEGIN or ssh-...');
+            return;
+        }
+
         setIsDecrypting(true);
 
         try {
@@ -168,8 +179,21 @@ export function DecryptionTab() {
         try {
             const clipboard = await readText();
             if (clipboard && clipboard.trim()) {
-                setDecryptionIdentity(clipboard.trim());
-                showToast('success', 'Pasted from clipboard');
+                const trimmed = clipboard.trim();
+                
+                // Validate key format
+                const isAgeKey = trimmed.startsWith('AGE-SECRET-KEY-');
+                const isSshKey = trimmed.startsWith('-----BEGIN') || trimmed.startsWith('ssh-');
+                
+                if (!isAgeKey && !isSshKey) {
+                    showToast('error', 'Invalid key format', 
+                        'Key must be either an age key (AGE-SECRET-KEY-...) or SSH key (-----BEGIN... or ssh-...)');
+                    return;
+                }
+                
+                setDecryptionIdentity(trimmed);
+                const keyType = isAgeKey ? 'age' : 'SSH';
+                showToast('success', 'Pasted from clipboard', `${keyType} private key loaded`);
             }
         } catch (err) {
             showToast('error', 'Failed to read clipboard', 'Could not access clipboard');

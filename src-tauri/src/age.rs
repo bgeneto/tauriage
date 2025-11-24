@@ -149,12 +149,31 @@ pub async fn decrypt_file(input: &str, output: &str, identity: &str) -> Result<(
     use std::io::Write;
     use std::fs::File;
 
+    // Validate identity format: should be either:
+    // - Age key: starts with "AGE-SECRET-KEY-"
+    // - SSH key: starts with "-----BEGIN" or "ssh-" (for OpenSSH format)
+    let trimmed_identity = identity.trim();
+    if !trimmed_identity.starts_with("AGE-SECRET-KEY-") 
+        && !trimmed_identity.starts_with("-----BEGIN") 
+        && !trimmed_identity.starts_with("ssh-") {
+        return Err(
+            "Identity must be either an age key (AGE-SECRET-KEY-...) or an SSH key (-----BEGIN... or ssh-...)".to_string()
+        );
+    }
+
     let temp_file = format!("{}.identity", input);
     let mut file = File::create(&temp_file)
         .map_err(|e| format!("Failed to create temp identity file: {}", e))?;
 
-    file.write_all(identity.as_bytes())
+    // Write identity with proper newline at end to ensure valid format
+    file.write_all(trimmed_identity.as_bytes())
         .map_err(|e| format!("Failed to write identity to temp file: {}", e))?;
+    
+    // Ensure file ends with newline (required by age for proper parsing)
+    if !trimmed_identity.ends_with('\n') {
+        file.write_all(b"\n")
+            .map_err(|e| format!("Failed to write newline to temp file: {}", e))?;
+    }
 
     let exe_path = get_bundled_exe_path("age.exe")?;
     let mut cmd = Command::new(&exe_path);
@@ -173,7 +192,7 @@ pub async fn decrypt_file(input: &str, output: &str, identity: &str) -> Result<(
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(format!("age decryption failed: {}", stderr));
+        return Err(format!("Failed to decrypt file: age decryption failed: {}", stderr));
     }
 
     Ok(())
