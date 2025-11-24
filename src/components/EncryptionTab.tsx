@@ -5,6 +5,7 @@ import { StoredKey } from '../types';
 import { useKeyStore } from '../hooks/useKeyStore';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { open } from '@tauri-apps/plugin-dialog';
+import { readText } from '@tauri-apps/plugin-clipboard-manager';
 import Toast, { ToastMessage } from './Toast';
 import { useEncryptionState } from '../context/EncryptionStateContext';
 
@@ -177,6 +178,18 @@ export function EncryptionTab() {
     return path.split('\\').pop()?.split('/').pop() || path;
   };
 
+  const handlePasteRecipientFromClipboard = async () => {
+    try {
+      const clipboard = await readText();
+      if (clipboard && clipboard.trim()) {
+        setRecipientInput(clipboard.trim());
+        showToast('success', 'Pasted from clipboard');
+      }
+    } catch (err) {
+      showToast('error', 'Failed to read clipboard', 'Could not access clipboard');
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Toast Container */}
@@ -310,6 +323,13 @@ export function EncryptionTab() {
                   Add
                 </button>
               </div>
+              <button
+                onClick={handlePasteRecipientFromClipboard}
+                className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-medium transition-colors"
+                style={{ color: '#ffffff' }}
+              >
+                📋 Paste from Clipboard
+              </button>
             </div>
           </div>
 

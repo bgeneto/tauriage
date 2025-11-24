@@ -3,12 +3,14 @@ import { invoke } from '@tauri-apps/api/core';
 import { KeyManagementTab } from './KeyManagementTab';
 import { EncryptionTab } from './EncryptionTab';
 import { DecryptionTab } from './DecryptionTab';
+import Toast, { ToastMessage } from './Toast';
 import { EncryptionStateProvider, useEncryptionState } from '../context/EncryptionStateContext';
 
 type TabType = 'keys' | 'encrypt' | 'decrypt';
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState<TabType>('keys');
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const { setStoredKeys } = useEncryptionState();
 
   const tabs = [
@@ -16,6 +18,15 @@ function AppContent() {
     { id: 'encrypt' as const, label: 'Encrypt', description: 'Encrypt files', icon: '🔒' },
     { id: 'decrypt' as const, label: 'Decrypt', description: 'Decrypt files', icon: '🔓' },
   ];
+
+  const showToast = (type: 'success' | 'error' | 'warning' | 'info', title: string, message?: string) => {
+    const id = Date.now().toString();
+    setToasts(prev => [...prev, { id, type, title, message }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  };
 
   // Auto-load stored keys on app startup (runs once)
   useEffect(() => {
@@ -31,6 +42,7 @@ function AppContent() {
           // Load the stored keys
           const loadedKeys = await invoke<any[]>('load_key_storage_cmd', { passphrase });
           setStoredKeys(loadedKeys);
+          showToast('success', 'Keys loaded', `Loaded ${loadedKeys.length} keypair(s)`);
           console.log(`Auto-loaded ${loadedKeys.length} keypair(s) on startup`);
         }
       } catch (err) {
@@ -39,10 +51,21 @@ function AppContent() {
     };
 
     autoLoadStoredKeys();
-  }, [setStoredKeys]);
+  }, []);
 
   return (
     <div className="flex flex-col h-screen bg-slate-50">
+      {/* Toast Container */}
+      <div className="fixed top-4 right-4 z-50 space-y-2 max-w-md">
+        {toasts.map(toast => (
+          <Toast
+            key={toast.id}
+            toast={toast}
+            onClose={removeToast}
+          />
+        ))}
+      </div>
+
       {/* Header */}
       <header className="bg-linear-to-r from-indigo-600 to-violet-600 text-white px-8 py-6 shadow-lg">
         <h1 className="text-3xl font-bold mb-1">Age File Encryption Tool</h1>

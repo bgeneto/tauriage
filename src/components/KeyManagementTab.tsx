@@ -7,7 +7,6 @@ import { useEncryptionState } from '../context/EncryptionStateContext';
 
 export function KeyManagementTab() {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isPasting, setIsPasting] = useState(false);
 
   const [isLoadingKeys, setIsLoadingKeys] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -18,18 +17,35 @@ export function KeyManagementTab() {
 
   const [autoPassphrase, setAutoPassphrase] = useState<string | null>(null);
 
-  const { generateKeys, pasteSshKey } = useAgeOperations();
+  const { generateKeys } = useAgeOperations();
   const { saveKeyStorage, createStoredKey, loadKeyStorage, keyStorageExists } = useKeyStore();
   const { 
-    keyManagement: { generatedKey, keyName, sshKey, storedKeys },
+    keyManagement: { generatedKey, keyName, storedKeys },
     setGeneratedKey,
     setKeyName,
-    setSshKey,
     setStoredKeys,
     removeStoredKey,
     addEncryptionRecipient, 
     setDecryptionIdentity 
   } = useEncryptionState();
+
+  const showToast = (type: 'success' | 'error' | 'warning' | 'info', title: string, message?: string) => {
+    const id = Date.now().toString();
+    setToasts(prev => [...prev, { id, type, title, message }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast('success', 'Copied to clipboard!');
+    } catch (err) {
+      showToast('error', 'Failed to copy', 'Could not copy to clipboard');
+    }
+  };
 
   // Initialize auto-passphrase and load keys on mount
   useEffect(() => {
@@ -45,7 +61,7 @@ export function KeyManagementTab() {
           // Auto-load the stored keys
           const loadedKeys = await loadKeyStorage(passphrase);
           setStoredKeys(loadedKeys);
-          showToast('success', 'Keys loaded', `Loaded ${loadedKeys.length} keypair(s)`);
+          // Don't show toast here - keys already loaded at app startup
         }
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Failed to initialize key storage';
@@ -74,20 +90,6 @@ export function KeyManagementTab() {
       setGeneratedKey(null);
     } finally {
       setIsGenerating(false);
-    }
-  };
-
-  const handlePasteSshKey = async () => {
-    setIsPasting(true);
-    setError(null);
-
-    try {
-      const pastedKey = await pasteSshKey();
-      setSshKey(pastedKey);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to paste SSH key');
-    } finally {
-      setIsPasting(false);
     }
   };
 
@@ -158,24 +160,6 @@ export function KeyManagementTab() {
     showToast('info', 'Keypairs locked', 'Your keypairs are no longer in memory');
   };
 
-  const showToast = (type: 'success' | 'error' | 'warning' | 'info', title: string, message?: string) => {
-    const id = Date.now().toString();
-    setToasts(prev => [...prev, { id, type, title, message }]);
-  };
-
-  const removeToast = (id: string) => {
-    setToasts(prev => prev.filter(t => t.id !== id));
-  };
-
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      showToast('success', 'Copied to clipboard!');
-    } catch (err) {
-      showToast('error', 'Failed to copy', 'Could not copy to clipboard');
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Toast Container */}
@@ -216,21 +200,6 @@ export function KeyManagementTab() {
           >
             {isGenerating ? '⏳ Generating...' : '🔑 Generate New Keys'}
           </button>
-        </div>
-
-        {/* SSH Key Import */}
-        <div className="bg-white rounded-lg p-6 border border-slate-200">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">📋 Import SSH Key</h3>
-          <div className="space-y-3">
-            <button
-              onClick={handlePasteSshKey}
-              disabled={isPasting}
-              className="w-full px-4 py-2 bg-slate-200 hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 rounded-lg font-medium transition-colors"
-            >
-              {isPasting ? '⏳ Pasting...' : '📌 Paste from Clipboard'}
-            </button>
-            <p className="text-xs text-slate-500">Supports SSH RSA, Ed25519 keys</p>
-          </div>
         </div>
       </div>
 
@@ -295,27 +264,6 @@ export function KeyManagementTab() {
               className="w-full px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
             >
               💾 Store This Key
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* SSH Key Display */}
-      {sshKey && (
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Pasted SSH Key</h3>
-          <div className="flex gap-2">
-            <textarea
-              readOnly
-              value={sshKey}
-              className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded font-mono text-xs text-slate-700"
-              rows={6}
-            />
-            <button
-              onClick={() => copyToClipboard(sshKey)}
-              className="px-3 py-2 bg-slate-400 hover:bg-slate-500 text-white rounded transition-colors text-sm font-medium"
-            >
-              Copy
             </button>
           </div>
         </div>

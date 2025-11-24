@@ -5,6 +5,7 @@ import { StoredKey } from '../types';
 import { useKeyStore } from '../hooks/useKeyStore';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { open } from '@tauri-apps/plugin-dialog';
+import { readText } from '@tauri-apps/plugin-clipboard-manager';
 import Toast, { ToastMessage } from './Toast';
 import { useEncryptionState } from '../context/EncryptionStateContext';
 
@@ -163,6 +164,18 @@ export function DecryptionTab() {
         return path.split('\\').pop()?.split('/').pop() || path;
     };
 
+    const handlePastePrivateKeyFromClipboard = async () => {
+        try {
+            const clipboard = await readText();
+            if (clipboard && clipboard.trim()) {
+                setDecryptionIdentity(clipboard.trim());
+                showToast('success', 'Pasted from clipboard');
+            }
+        } catch (err) {
+            showToast('error', 'Failed to read clipboard', 'Could not access clipboard');
+        }
+    };
+
     return (
         <div className="space-y-6">
             {/* Toast Container */}
@@ -288,12 +301,15 @@ export function DecryptionTab() {
                                 className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                 rows={4}
                             />
-                            <button
-                                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-medium transition-colors"
-                                style={{ color: '#ffffff' }}
-                            >
-                                Add
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={handlePastePrivateKeyFromClipboard}
+                                    className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-medium transition-colors"
+                                    style={{ color: '#ffffff' }}
+                                >
+                                    📋 Paste from Clipboard
+                                </button>
+                            </div>
                             <div className="flex items-center gap-2 text-xs text-slate-600">
                                 <span>🔐</span>
                                 <span>Your private key is kept in memory only and never stored</span>
