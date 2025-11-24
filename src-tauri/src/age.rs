@@ -1,4 +1,5 @@
 use std::process::Stdio;
+use std::path::PathBuf;
 use tokio::process::Command;
 use serde::{Deserialize, Serialize};
 
@@ -28,8 +29,50 @@ pub struct DecryptionResult {
     pub identity: String,
 }
 
+/// Get the path to a bundled executable based on the OS and filename
+fn get_bundled_exe_path(exe_name: &str) -> Result<PathBuf, String> {
+    let exe_path = std::env::current_exe()
+        .map_err(|e| format!("Could not determine app path: {}", e))?;
+    let parent = exe_path.parent()
+        .ok_or("Could not determine app directory")?;
+    
+    #[cfg(target_os = "windows")]
+    {
+        let resource_path = parent.join("resources").join("binaries").join(exe_name);
+        
+        if !resource_path.exists() {
+            return Err(format!(
+                "Age executable not found at: {}. This should not happen - bundled binaries may be missing.",
+                resource_path.display()
+            ));
+        }
+        
+        Ok(resource_path)
+    }
+    
+    #[cfg(target_os = "linux")]
+    {
+        let resource_path = parent.join("resources").join("binaries").join(exe_name);
+        
+        if !resource_path.exists() {
+            return Err(format!(
+                "Age executable not found at: {}. This should not happen - bundled binaries may be missing.",
+                resource_path.display()
+            ));
+        }
+        
+        Ok(resource_path)
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        // On macOS, use the system path (age should be installed via brew)
+        Ok(PathBuf::from(exe_name))
+    }
+
 pub async fn generate_keypair(comment: Option<&str>) -> Result<AgeKeyPair, String> {
-    let mut cmd = Command::new("age-keygen");
+    let exe_path = get_bundled_exe_path("age-keygen.exe")?;
+    let mut cmd = Command::new(&exe_path);
 
     if let Some(comment) = comment {
         cmd.arg("-c").arg(comment);
@@ -76,7 +119,8 @@ fn parse_age_keygen_output(output: &str) -> Result<AgeKeyPair, String> {
 }
 
 pub async fn encrypt_file(input: &str, output: &str, recipients: &[String]) -> Result<(), String> {
-    let mut cmd = Command::new("age");
+    let exe_path = get_bundled_exe_path("age.exe")?;
+    let mut cmd = Command::new(&exe_path);
     cmd.arg("-o").arg(output);
 
     for recipient in recipients {
@@ -111,7 +155,8 @@ pub async fn decrypt_file(input: &str, output: &str, identity: &str) -> Result<(
     file.write_all(identity.as_bytes())
         .map_err(|e| format!("Failed to write identity to temp file: {}", e))?;
 
-    let mut cmd = Command::new("age");
+    let exe_path = get_bundled_exe_path("age.exe")?;
+    let mut cmd = Command::new(&exe_path);
     cmd.arg("-d")
        .arg("-i").arg(&temp_file)
        .arg("-o").arg(output)
@@ -147,7 +192,8 @@ pub async fn derive_public_from_ssh(ssh_pubkey: &str) -> Result<String, String> 
     file.write_all(ssh_pubkey.as_bytes())
         .map_err(|e| format!("Failed to write SSH key to temp file: {}", e))?;
 
-    let mut cmd = Command::new("age-keygen");
+    let exe_path = get_bundled_exe_path("age-keygen.exe")?;
+    let mut cmd = Command::new(&exe_path);
     cmd.arg("-y").arg(temp_file)
        .stdout(Stdio::piped())
        .stderr(Stdio::piped());
