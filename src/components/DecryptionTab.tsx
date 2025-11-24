@@ -16,7 +16,6 @@ export function DecryptionTab() {
   const { decryptFile } = useAgeOperations();
   const { loadKeyStorage } = useKeyStore();
 
-  // Load stored keys to potentially use as identities
   const [storedKeys, setStoredKeys] = useState<StoredKey[]>([]);
 
   React.useEffect(() => {
@@ -25,7 +24,6 @@ export function DecryptionTab() {
         const keys = await loadKeyStorage('', undefined);
         setStoredKeys(keys);
       } catch (error) {
-        // Stored keys not available, continue without
         console.log('No stored keys available for decryption');
       }
     };
@@ -67,7 +65,6 @@ export function DecryptionTab() {
     setDecryptionResult(null);
 
     try {
-      // For now, decrypt only the first file
       const result = await decryptFile(selectedInputFiles[0].path, outputFile, identity.trim());
       setDecryptionResult(result);
     } catch (err) {
@@ -77,148 +74,113 @@ export function DecryptionTab() {
     }
   };
 
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch (err) {
-      setError('Failed to copy to clipboard');
-    }
-  };
-
   return (
-    <div className="tab-panel">
-      <h2>File Decryption</h2>
-      <p>Select encrypted files and provide private keys for decryption.</p>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">File Decryption</h2>
+        <p className="text-slate-600">Select encrypted files and provide private keys for decryption.</p>
+      </div>
 
       {error && (
-        <div className="error-message" style={{ color: 'red', marginBottom: '1rem' }}>
-          {error}
+        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-start gap-3">
+          <span className="text-xl">⚠️</span>
+          <div>{error}</div>
         </div>
       )}
 
-      <div className="column" style={{ gap: '2rem' }}>
-        {/* File Explorer for input selection */}
-        <div>
-          <h3>Step 1: Select Encrypted Files</h3>
-          <p>Browse and select .age encrypted files from your filesystem.</p>
-          <FileExplorer
-            selectionMode="single"
-            selectedFiles={selectedInputFiles}
-            onSelectionChange={setSelectedInputFiles}
-            acceptedExtensions={['.age']} // Only show .age files
-          />
+      {decryptionResult && (
+        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-start gap-3">
+          <span className="text-xl">✓</span>
+          <div>
+            <div className="font-semibold">Decryption successful!</div>
+            <div className="text-sm mt-1">Output: {decryptionResult.outputFile}</div>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-3">
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-lg font-semibold text-slate-900">Step 1: Select Encrypted Files</h3>
+            <span className="text-sm text-slate-500">Browse .age files</span>
+          </div>
+          <div className="border border-slate-200 rounded-lg overflow-hidden h-96 bg-white">
+            <FileExplorer
+              selectionMode="single"
+              selectedFiles={selectedInputFiles}
+              onSelectionChange={setSelectedInputFiles}
+              acceptedExtensions={['.age']}
+            />
+          </div>
         </div>
 
-        {/* Output file selection */}
-        <div className="file-selection-section">
-          <h3>Step 2: Choose Output Location</h3>
-          <div className="row">
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-slate-900">Step 2: Output Location</h3>
             <input
               type="text"
               value={outputFile}
-              placeholder="Click 'Choose Location' to select where to save the decrypted file"
+              placeholder="Choose location..."
               readOnly
-              style={{ flex: 1 }}
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-sm text-slate-600 truncate"
             />
             <button
               onClick={handlePickOutputFile}
               disabled={selectedInputFiles.length === 0}
+              className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
             >
               Choose Location
             </button>
           </div>
-        </div>
 
-        {/* Private key input */}
-        <div className="identity-section">
-          <h3>Step 3: Provide Private Key (Identity)</h3>
-
-          {/* Stored keys section */}
-          {storedKeys.length > 0 && storedKeys.some(k => k.privateKey) && (
-            <div style={{ marginBottom: '1rem' }}>
-              <p><strong>Your Saved Private Keys:</strong></p>
-              <div className="row" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
-                {storedKeys
-                  .filter(key => key.privateKey)
-                  .map((key) => (
-                  <button
-                    key={key.id}
-                    onClick={() => handleUseStoredKey(key)}
-                    style={{ padding: '0.5rem', fontSize: '0.8rem' }}
-                  >
-                    Use: {key.name}
-                  </button>
-                ))}
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-slate-900">Step 3: Private Key</h3>
+            
+            {storedKeys.length > 0 && storedKeys.some(k => k.privateKey) && (
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-slate-700">Your saved keys:</div>
+                <div className="space-y-1">
+                  {storedKeys
+                    .filter(key => key.privateKey)
+                    .map((key) => (
+                      <button
+                        key={key.id}
+                        onClick={() => handleUseStoredKey(key)}
+                        className="w-full text-left px-2 py-1 text-xs bg-slate-50 hover:bg-slate-100 text-slate-700 rounded border border-slate-200 transition-colors"
+                      >
+                        + {key.name}
+                      </button>
+                    ))}
+                </div>
               </div>
-            </div>
-          )}
-
-          <p>Paste your private key to decrypt the file:</p>
-
-          <div className="row">
-            <textarea
-              value={identity}
-              onChange={(e) => setIdentity(e.target.value)}
-              placeholder="Paste your private key here...&#10;&#10;Example: AGE-SECRET-KEY-..."
-              style={{
-                flex: 1,
-                minHeight: '120px',
-                resize: 'vertical',
-                fontFamily: 'monospace',
-                fontSize: '0.875rem'
-              }}
-            />
-          </div>
-
-          <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <button
-              onClick={() => copyToClipboard(identity)}
-              disabled={!identity.trim()}
-              style={{ backgroundColor: '#6c757d' }}
-            >
-              Copy Key
-            </button>
-            <span style={{ fontSize: '0.875rem', color: '#666' }}>
-              🔐 Your private key is kept in memory only and never stored
-            </span>
+            )}
           </div>
         </div>
-
-        {/* Decrypt button */}
-        <div className="decryption-controls">
-          <button
-            onClick={handleDecrypt}
-            disabled={isDecrypting || selectedInputFiles.length === 0 || !outputFile || !identity.trim()}
-            style={{
-              padding: '1rem 2rem',
-              fontSize: '1.1rem',
-              backgroundColor: '#28a745'
-            }}
-          >
-            {isDecrypting ? '🔓 Decrypting...' : '🔓 Decrypt File'}
-          </button>
-        </div>
-
-        {/* Results */}
-        {decryptionResult && (
-          <div className="decryption-result" style={{
-            padding: '1rem',
-            backgroundColor: '#d4edda',
-            border: '1px solid #c3e6cb',
-            borderRadius: '4px'
-          }}>
-            <h4 style={{ color: '#155724', marginTop: 0 }}>✅ Decryption Successful!</h4>
-            <div className="column" style={{ gap: '0.5rem' }}>
-              <p><strong>🔐 Input:</strong> {decryptionResult.inputFile}</p>
-              <p><strong>📂 Output:</strong> {decryptionResult.outputFile}</p>
-              <p><strong>🔑 Identity:</strong> {decryptionResult.identity.substring(0, 20)}...</p>
-            </div>
-            <p style={{ fontSize: '0.875rem', color: '#155724' }}>
-              Your file has been successfully decrypted!
-            </p>
-          </div>
-        )}
       </div>
+
+      <div className="space-y-3">
+        <h3 className="text-lg font-semibold text-slate-900">Paste Private Key</h3>
+        <textarea
+          value={identity}
+          onChange={(e) => setIdentity(e.target.value)}
+          placeholder="Paste your private key here...&#10;Example: AGE-SECRET-KEY-..."
+          className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 font-mono focus:outline-none focus:ring-2 focus:ring-primary-500"
+          rows={6}
+        />
+        <div className="flex items-center gap-2 text-xs text-slate-600">
+          <span>🔐</span>
+          <span>Your private key is kept in memory only and never stored</span>
+        </div>
+      </div>
+
+      <button
+        onClick={handleDecrypt}
+        disabled={isDecrypting || selectedInputFiles.length === 0 || !outputFile || !identity.trim()}
+        className="w-full px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg"
+      >
+        {isDecrypting ? '⏳ Decrypting...' : '🔓 Decrypt File'}
+      </button>
     </div>
   );
 }
+

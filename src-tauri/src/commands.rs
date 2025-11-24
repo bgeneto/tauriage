@@ -1,10 +1,10 @@
 use crate::age::{AgeKeyPair, EncryptionResult, DecryptionResult, generate_keypair, encrypt_file, decrypt_file, derive_public_from_ssh};
 use crate::key_storage::{StoredKey, create_stored_key, save_key_storage, load_key_storage, key_storage_exists, get_default_key_storage_path};
-use tauri::State;
 use std::sync::Mutex;
 
 // For simplicity, we'll store keys in memory for now
 // Later we'll implement encrypted persistent storage
+#[allow(dead_code)]
 pub struct KeyStore {
     pub keys: Mutex<Vec<crate::age::AgeKeyPair>>,
 }
@@ -53,7 +53,7 @@ pub async fn derive_public_key_from_ssh(ssh_pubkey: String) -> Result<String, St
 
 #[tauri::command]
 pub async fn paste_ssh_key_from_clipboard(
-    app_handle: tauri::AppHandle,
+    _app_handle: tauri::AppHandle,
 ) -> Result<String, String> {
     // TODO: implement clipboard reading with correct API
     // For now, return error to indicate it's not implemented

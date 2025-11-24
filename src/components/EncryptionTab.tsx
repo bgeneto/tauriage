@@ -17,17 +17,14 @@ export function EncryptionTab() {
   const { encryptFile } = useAgeOperations();
   const { loadKeyStorage } = useKeyStore();
 
-  // Load stored keys to use as recipients
   const [storedKeys, setStoredKeys] = useState<StoredKey[]>([]);
 
   React.useEffect(() => {
     const loadStoredKeys = async () => {
       try {
-        // For demo purposes, try loading with empty passphrase
         const keys = await loadKeyStorage('', undefined);
         setStoredKeys(keys);
       } catch (error) {
-        // Stored keys not available, continue without
         console.log('No stored keys available');
       }
     };
@@ -85,8 +82,6 @@ export function EncryptionTab() {
     setEncryptionResult(null);
 
     try {
-      // For now, encrypt only the first file. Batch encryption would need more complex handling
-      // TODO: Implement batch file encryption
       const result = await encryptFile(selectedInputFiles[0].path, outputFile, recipients);
       setEncryptionResult(result);
     } catch (err) {
@@ -97,150 +92,135 @@ export function EncryptionTab() {
   };
 
   return (
-    <div className="tab-panel">
-      <h2>File Encryption</h2>
-      <p>Select files to encrypt and choose public keys for recipients.</p>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">File Encryption</h2>
+        <p className="text-slate-600">Select files to encrypt and choose public keys for recipients.</p>
+      </div>
 
       {error && (
-        <div className="error-message" style={{ color: 'red', marginBottom: '1rem' }}>
-          {error}
+        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-start gap-3">
+          <span className="text-xl">⚠️</span>
+          <div>{error}</div>
         </div>
       )}
 
-      <div className="column" style={{ gap: '2rem' }}>
-        {/* File Explorer for input selection */}
-        <div>
-          <h3>Step 1: Select Files to Encrypt</h3>
-          <p>Browse and select files from your filesystem. <em>(Currently single file selection, batch support coming soon)</em></p>
-          <FileExplorer
-            selectionMode="single"
-            selectedFiles={selectedInputFiles}
-            onSelectionChange={setSelectedInputFiles}
-            acceptedExtensions={[]} // Allow all files for encryption
-          />
+      {encryptionResult && (
+        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-start gap-3">
+          <span className="text-xl">✓</span>
+          <div>
+            <div className="font-semibold">Encryption successful!</div>
+            <div className="text-sm mt-1">Output: {encryptionResult.outputFile}</div>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-3">
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-lg font-semibold text-slate-900">Step 1: Select Files</h3>
+            <span className="text-sm text-slate-500">Browse your filesystem</span>
+          </div>
+          <div className="border border-slate-200 rounded-lg overflow-hidden h-96 bg-white">
+            <FileExplorer
+              selectionMode="single"
+              selectedFiles={selectedInputFiles}
+              onSelectionChange={setSelectedInputFiles}
+              acceptedExtensions={[]}
+            />
+          </div>
         </div>
 
-        {/* Output file selection */}
-        <div className="file-selection-section">
-          <h3>Step 2: Choose Output Location</h3>
-          <div className="row">
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-slate-900">Step 2: Output Location</h3>
             <input
               type="text"
               value={outputFile}
-              placeholder="Click 'Choose Location' to select where to save the encrypted file"
+              placeholder="Choose location..."
               readOnly
-              style={{ flex: 1 }}
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-sm text-slate-600 truncate"
             />
             <button
               onClick={handlePickOutputFile}
               disabled={selectedInputFiles.length === 0}
+              className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
             >
               Choose Location
             </button>
           </div>
-        </div>
 
-        {/* Recipients */}
-        <div className="recipients-section">
-          <h3>Step 3: Add Recipients (Public Keys)</h3>
-          <p>Add public keys of people who should be able to decrypt this file.</p>
-
-          {/* Stored keys section */}
-          {storedKeys.length > 0 && (
-            <div style={{ marginBottom: '1rem' }}>
-              <p><strong>Your Saved Keys:</strong></p>
-              <div className="row" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
-                {storedKeys.map((key) => (
-                  <button
-                    key={key.id}
-                    onClick={() => handleAddStoredKeyAsRecipient(key)}
-                    disabled={recipients.includes(key.publicKey)}
-                    style={{ padding: '0.5rem', fontSize: '0.8rem' }}
-                  >
-                    Use: {key.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="row">
-            <textarea
-              value={recipientInput}
-              onChange={(e) => setRecipientInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Paste a public key here or enter an age recipient...&#10;&#10;Example: age1xyz..."
-              style={{ flex: 1, minHeight: '100px', resize: 'vertical' }}
-            />
-            <button
-              onClick={handleAddRecipient}
-              disabled={!recipientInput.trim()}
-            >
-              Add Recipient
-            </button>
-          </div>
-
-          {recipients.length > 0 && (
-            <div className="recipients-list" style={{ marginTop: '1rem' }}>
-              <h4>Selected Recipients ({recipients.length}):</h4>
-              <div className="column" style={{ gap: '0.5rem' }}>
-                {recipients.map((recipient, index) => (
-                  <div key={index} className="row" style={{ alignItems: 'flex-start' }}>
-                    <textarea
-                      value={recipient}
-                      readOnly
-                      style={{
-                        flex: 1,
-                        minHeight: '60px',
-                        resize: 'vertical',
-                        fontFamily: 'monospace',
-                        fontSize: '0.875rem'
-                      }}
-                    />
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-slate-900">Step 3: Add Recipients</h3>
+            
+            {storedKeys.length > 0 && (
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-slate-700">From your keys:</div>
+                <div className="space-y-1">
+                  {storedKeys.map(key => (
                     <button
-                      onClick={() => handleRemoveRecipient(index)}
-                      style={{ height: 'auto', backgroundColor: '#dc3545' }}
+                      key={key.id}
+                      onClick={() => handleAddStoredKeyAsRecipient(key)}
+                      disabled={recipients.includes(key.publicKey)}
+                      className="w-full text-left px-2 py-1 text-xs bg-slate-50 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed text-slate-700 rounded border border-slate-200 transition-colors"
                     >
-                      Remove
+                      + {key.name}
                     </button>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">Or paste a key:</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={recipientInput}
+                  onChange={e => setRecipientInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="age1xyz..."
+                  className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+                <button
+                  onClick={handleAddRecipient}
+                  className="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-900 rounded text-sm font-medium transition-colors"
+                >
+                  Add
+                </button>
               </div>
             </div>
-          )}
-        </div>
-
-        {/* Encrypt button */}
-        <div className="encryption-controls">
-          <button
-            onClick={handleEncrypt}
-            disabled={isEncrypting || selectedInputFiles.length === 0 || !outputFile || recipients.length === 0}
-            style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}
-          >
-            {isEncrypting ? '🔐 Encrypting...' : '🔐 Encrypt File'}
-          </button>
-        </div>
-
-        {/* Results */}
-        {encryptionResult && (
-          <div className="encryption-result" style={{
-            padding: '1rem',
-            backgroundColor: '#d4edda',
-            border: '1px solid #c3e6cb',
-            borderRadius: '4px'
-          }}>
-            <h4 style={{ color: '#155724', marginTop: 0 }}>✅ Encryption Successful!</h4>
-            <div className="column" style={{ gap: '0.5rem' }}>
-              <p><strong>📁 Input:</strong> {encryptionResult.inputFile}</p>
-              <p><strong>💾 Output:</strong> {encryptionResult.outputFile}</p>
-              <p><strong>👥 Recipients:</strong> {encryptionResult.publicKeys.length}</p>
-            </div>
-            <p style={{ fontSize: '0.875rem', color: '#155724' }}>
-              Your file has been securely encrypted with age. Keep your private key safe!
-            </p>
           </div>
-        )}
+        </div>
       </div>
+
+      {recipients.length > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="font-semibold text-blue-900 mb-3">Recipients ({recipients.length})</div>
+          <div className="space-y-2">
+            {recipients.map((recipient, index) => (
+              <div key={index} className="flex items-center gap-2 bg-white rounded p-2 text-sm">
+                <span className="flex-1 font-mono text-slate-700 truncate">{recipient}</span>
+                <button
+                  onClick={() => handleRemoveRecipient(index)}
+                  className="px-2 py-1 text-red-600 hover:bg-red-50 rounded transition-colors text-xs"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <button
+        onClick={handleEncrypt}
+        disabled={selectedInputFiles.length === 0 || !outputFile || recipients.length === 0 || isEncrypting}
+        className="w-full px-6 py-3 bg-gradient-to-r from-primary-500 to-secondary hover:from-primary-600 hover:to-secondary-600 disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg"
+      >
+        {isEncrypting ? '⏳ Encrypting...' : '🔒 Encrypt File'}
+      </button>
     </div>
   );
 }
+

@@ -165,10 +165,9 @@ export function FileExplorer({
     // For now, drag and drop from external sources is not fully supported
     // In a Tauri context, we would need native file path access
     // TODO: Implement proper external file drag-and-drop for Tauri
-    setError('Drag and drop from external sources is not yet supported. Use the file browser instead.');
   }, []);
 
-  const [error, setError] = useState<string | null>(null);
+
 
   const getFileIcon = (item: FileItem) => {
     if (item.isDirectory) {
@@ -213,14 +212,15 @@ export function FileExplorer({
   };
 
   return (
-    <div className="file-explorer">
+    <div className="flex flex-col h-full border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm">
       {/* Navigation Bar */}
-      <div className="explorer-navbar">
-        <div className="nav-buttons">
+      <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 border-b border-slate-200">
+        <div className="flex gap-1">
           <button
             onClick={goBack}
             disabled={historyIndex <= 0}
             title="Go Back"
+            className="p-2 rounded hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-semibold"
           >
             ←
           </button>
@@ -228,75 +228,85 @@ export function FileExplorer({
             onClick={goForward}
             disabled={historyIndex >= pathHistory.length - 1}
             title="Go Forward"
+            className="p-2 rounded hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-semibold"
           >
             →
           </button>
         </div>
 
-        <div className="current-path">
+        <div className="flex-1 bg-white px-3 py-1 rounded border border-slate-200 font-mono text-xs text-slate-600 overflow-hidden text-ellipsis whitespace-nowrap">
           {currentPath}
         </div>
       </div>
 
       {/* File List Header */}
-      <div className="file-list-header">
-        <div className="header-cell name">Name</div>
-        <div className="header-cell size">Size</div>
-        <div className="header-cell type">Type</div>
+      <div className="flex bg-slate-100 border-b border-slate-200 text-xs font-semibold text-slate-700 sticky top-0">
+        <div className="flex-1 px-3 py-2">Name</div>
+        <div className="w-24 px-3 py-2 text-right">Size</div>
+        <div className="w-20 px-3 py-2 text-center">Type</div>
       </div>
 
       {/* File List */}
       <div
-        className="file-list"
+        className="flex-1 overflow-y-auto bg-white"
         ref={dropZoneRef}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        {isLoading ? (
-          <div className="loading">Loading...</div>
-        ) : files.length === 0 ? (
-          <div className="empty-state">
-            This folder is empty
-            <br />
-            <small>Drag and drop files here</small>
-          </div>
-        ) : (
+        {!isLoading && files.length > 0 ? (
           files.map((item) => (
             <div
               key={item.path}
-              className={`file-item ${
-                selectedFiles.some(f => f.path === item.path) ? 'selected' : ''
+              className={`flex items-center border-b border-slate-100 px-3 py-2 cursor-pointer transition-colors ${
+                selectedFiles.some(f => f.path === item.path)
+                  ? 'bg-primary-50 border-l-4 border-primary-500'
+                  : 'hover:bg-slate-50'
               }`}
               onClick={() => handleItemClick(item)}
               onDoubleClick={() => handleItemDoubleClick(item)}
             >
-              <div className="file-icon">{getFileIcon(item)}</div>
-              <div className="file-name" title={item.name}>
+              <div className="text-lg mr-2 w-6 text-center">{getFileIcon(item)}</div>
+              <div className="flex-1 text-sm text-slate-900 truncate" title={item.name}>
                 {item.name}
               </div>
-              <div className="file-size">
-                {item.isDirectory ? '--' : formatFileSize(item.size)}
+              <div className="w-24 text-right text-xs text-slate-500">
+                {item.isDirectory ? '–' : formatFileSize(item.size)}
               </div>
-              <div className="file-type">
+              <div className="w-20 text-center text-xs text-slate-500">
                 {item.isDirectory ? 'Folder' : 'File'}
               </div>
             </div>
           ))
+        ) : isLoading ? (
+          <div className="flex items-center justify-center h-48 text-slate-400">
+            <div className="text-center">
+              <div className="inline-block animate-spin mb-2">⏳</div>
+              <div className="text-sm">Loading files...</div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-48 text-slate-400">
+            <div className="text-center">
+              <div className="text-4xl mb-2">📁</div>
+              <div className="text-sm">This folder is empty</div>
+            </div>
+          </div>
         )}
       </div>
 
       {/* Selected Files Summary */}
       {selectedFiles.length > 0 && (
-        <div className="selection-summary">
-          <strong>Selected ({selectedFiles.length}):</strong>
-          <div className="selected-files">
+        <div className="bg-slate-50 border-t border-slate-200 px-3 py-2 text-xs">
+          <strong className="text-slate-700">Selected ({selectedFiles.length})</strong>
+          <div className="flex flex-wrap gap-2 mt-2">
             {selectedFiles.map((file, index) => (
-              <span key={file.path} className="selected-file-tag">
+              <span key={file.path} className="inline-flex items-center gap-1 px-2 py-1 bg-primary-500 text-white rounded-full text-xs">
                 {file.name}
                 <button
                   onClick={() => onSelectionChange(selectedFiles.filter((_, i) => i !== index))}
                   title="Remove"
+                  className="ml-1 hover:bg-primary-600 rounded-full w-4 h-4 flex items-center justify-center font-bold text-sm"
                 >
                   ×
                 </button>
@@ -308,3 +318,4 @@ export function FileExplorer({
     </div>
   );
 }
+
