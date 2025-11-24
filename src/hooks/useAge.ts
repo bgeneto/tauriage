@@ -1,0 +1,68 @@
+import { invoke } from '@tauri-apps/api/core';
+import { AgeKeyPair, EncryptionResult, DecryptionResult } from '../types';
+
+export const useAgeOperations = () => {
+  const generateKeys = async (comment?: string): Promise<AgeKeyPair> => {
+    try {
+      return await invoke('generate_age_keys', { comment });
+    } catch (error) {
+      throw new Error(`Failed to generate keys: ${error}`);
+    }
+  };
+
+  const encryptFile = async (
+    inputFile: string,
+    outputFile: string,
+    recipients: string[]
+  ): Promise<EncryptionResult> => {
+    try {
+      return await invoke('encrypt_file_cmd', {
+        inputFile,
+        outputFile,
+        recipients,
+      });
+    } catch (error) {
+      throw new Error(`Failed to encrypt file: ${error}`);
+    }
+  };
+
+  const decryptFile = async (
+    inputFile: string,
+    outputFile: string,
+    identity: string
+  ): Promise<DecryptionResult> => {
+    try {
+      return await invoke('decrypt_file_cmd', {
+        inputFile,
+        outputFile,
+        identity,
+      });
+    } catch (error) {
+      throw new Error(`Failed to decrypt file: ${error}`);
+    }
+  };
+
+  const pasteSshKey = async (): Promise<string> => {
+    try {
+      return await invoke('paste_ssh_key_from_clipboard');
+    } catch (error) {
+      throw new Error(`Failed to paste SSH key: ${error}`);
+    }
+  };
+
+  const derivePublicKeyFromSsh = async (sshPubkey: string): Promise<string> => {
+    try {
+      return await invoke('derive_public_key_from_ssh', { sshPubkey });
+    } catch (error) {
+      throw new Error(`Failed to derive public key from SSH: ${error}`);
+    }
+  };
+
+  return {
+    generateKeys,
+    encryptFile,
+    decryptFile,
+    pasteSshKey,
+    derivePublicKeyFromSsh,
+  };
+};
