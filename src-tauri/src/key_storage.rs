@@ -154,3 +154,60 @@ pub fn get_default_key_storage_path() -> Result<String, String> {
 
     Ok(age_dir.join("keys.enc").to_string_lossy().to_string())
 }
+
+/// Get passphrase config file path
+pub fn get_passphrase_file_path() -> Result<String, String> {
+    let config_dir = dirs::config_dir()
+        .ok_or("Could not determine config directory")?;
+
+    let age_dir = config_dir.join("tauriage");
+    std::fs::create_dir_all(&age_dir)
+        .map_err(|e| format!("Could not create config directory: {}", e))?;
+
+    Ok(age_dir.join(".passphrase").to_string_lossy().to_string())
+}
+
+/// Generate a strong passphrase based on username and random component
+pub fn generate_auto_passphrase() -> Result<String, String> {
+    use sha2::{Sha256, Digest};
+    use rand::Rng;
+    
+    // Get username
+    let username = whoami::username();
+    
+    // Generate random bytes
+    let mut rng = rand::thread_rng();
+    let mut random_bytes = [0u8; 16];
+    rng.fill(&mut random_bytes);
+    
+    // Create hash of username + random bytes
+    let mut hasher = Sha256::new();
+    hasher.update(username.as_bytes());
+    hasher.update(&random_bytes);
+    let result = hasher.finalize();
+    
+    // Convert to hex string
+    let passphrase = format!("{:x}", result);
+    Ok(passphrase)
+}
+
+/// Get or create the auto passphrase
+pub fn get_or_create_passphrase() -> Result<String, String> {
+    let passphrase_file = get_passphrase_file_path()?;
+    
+    // Try to read existing passphrase
+    if Path::new(&passphrase_file).exists() {
+        let passphrase = fs::read_to_string(&passphrase_file)
+            .map_err(|e| format!("Failed to read passphrase file: {}", e))?;
+        return Ok(passphrase.trim().to_string());
+    }
+    
+    // Generate new passphrase
+    let passphrase = generate_auto_passphrase()?;
+    
+    // Save it
+    fs::write(&passphrase_file, &passphrase)
+        .map_err(|e| format!("Failed to write passphrase file: {}", e))?;
+    
+    Ok(passphrase)
+}

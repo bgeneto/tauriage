@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { invoke } from '@tauri-apps/api/core';
 import { KeyManagementTab } from './KeyManagementTab';
 import { EncryptionTab } from './EncryptionTab';
 import { DecryptionTab } from './DecryptionTab';
+import { EncryptionStateProvider, useEncryptionState } from '../context/EncryptionStateContext';
 
 type TabType = 'keys' | 'encrypt' | 'decrypt';
 
-export function App() {
+function AppContent() {
   const [activeTab, setActiveTab] = useState<TabType>('keys');
+  const { setStoredKeys } = useEncryptionState();
 
   const tabs = [
     { id: 'keys' as const, label: 'Key Management', description: 'Generate and manage age keys', icon: '🔑' },
@@ -14,10 +17,34 @@ export function App() {
     { id: 'decrypt' as const, label: 'Decrypt', description: 'Decrypt files', icon: '🔓' },
   ];
 
+  // Auto-load stored keys on app startup (runs once)
+  useEffect(() => {
+    const autoLoadStoredKeys = async () => {
+      try {
+        // Get the auto-passphrase
+        const passphrase = await invoke<string>('get_or_create_passphrase_cmd');
+        
+        // Check if key storage exists
+        const keyStorageExists = await invoke<boolean>('key_storage_exists_cmd', {});
+        
+        if (keyStorageExists) {
+          // Load the stored keys
+          const loadedKeys = await invoke<any[]>('load_key_storage_cmd', { passphrase });
+          setStoredKeys(loadedKeys);
+          console.log(`Auto-loaded ${loadedKeys.length} keypair(s) on startup`);
+        }
+      } catch (err) {
+        console.error('Failed to auto-load stored keys on startup:', err);
+      }
+    };
+
+    autoLoadStoredKeys();
+  }, [setStoredKeys]);
+
   return (
     <div className="flex flex-col h-screen bg-slate-50">
       {/* Header */}
-      <header className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-8 py-6 shadow-lg">
+      <header className="bg-linear-to-r from-indigo-600 to-violet-600 text-white px-8 py-6 shadow-lg">
         <h1 className="text-3xl font-bold mb-1">Age File Encryption Tool</h1>
         <p className="text-sm opacity-90">Cross-platform file encryption using age</p>
       </header>
@@ -59,5 +86,13 @@ export function App() {
         </main>
       </div>
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <EncryptionStateProvider>
+      <AppContent />
+    </EncryptionStateProvider>
   );
 }

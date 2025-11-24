@@ -22,17 +22,12 @@ export const pickFile = async (title?: string): Promise<string | null> => {
   }
 };
 
-export const pickSaveLocation = async (
-  title?: string,
-  suggestedName?: string
-): Promise<string | null> => {
+export const pickSaveLocation = async (title?: string): Promise<string | null> => {
   try {
     const selected = await open({
       title: title || 'Choose save location',
-      directory: false,
+      directory: true,
       multiple: false,
-      save: true,
-      defaultPath: suggestedName,
     });
 
     return Array.isArray(selected) ? selected[0] || null : selected;

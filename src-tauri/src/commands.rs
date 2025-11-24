@@ -1,5 +1,5 @@
 use crate::age::{AgeKeyPair, EncryptionResult, DecryptionResult, generate_keypair, encrypt_file, decrypt_file, derive_public_from_ssh};
-use crate::key_storage::{StoredKey, create_stored_key, save_key_storage, load_key_storage, key_storage_exists, get_default_key_storage_path};
+use crate::key_storage::{StoredKey, create_stored_key, save_key_storage, load_key_storage, key_storage_exists, get_default_key_storage_path, get_or_create_passphrase};
 use std::sync::Mutex;
 
 // For simplicity, we'll store keys in memory for now
@@ -78,6 +78,11 @@ pub fn load_key_storage_cmd(passphrase: String, file_path: Option<String>) -> Re
 }
 
 #[tauri::command]
+pub fn get_or_create_passphrase_cmd() -> Result<String, String> {
+    get_or_create_passphrase()
+}
+
+#[tauri::command]
 pub fn save_key_storage_cmd(passphrase: String, keys: Vec<StoredKey>, file_path: Option<String>) -> Result<(), String> {
     let path = file_path.unwrap_or_else(|| get_default_key_storage_path().unwrap_or_default());
     save_key_storage(&passphrase, &keys, &path)
@@ -98,6 +103,11 @@ pub fn get_user_home_directory() -> Result<String, String> {
     dirs::home_dir()
         .ok_or("Could not determine home directory".to_string())
         .map(|p| p.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+pub fn get_platform() -> String {
+    std::env::consts::OS.to_string()
 }
 
 #[derive(serde::Serialize)]

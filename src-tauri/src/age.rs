@@ -69,6 +69,7 @@ fn get_bundled_exe_path(exe_name: &str) -> Result<PathBuf, String> {
         // On macOS, use the system path (age should be installed via brew)
         Ok(PathBuf::from(exe_name))
     }
+}
 
 pub async fn generate_keypair(comment: Option<&str>) -> Result<AgeKeyPair, String> {
     let exe_path = get_bundled_exe_path("age-keygen.exe")?;

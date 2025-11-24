@@ -4,32 +4,24 @@ use std::path::Path;
 fn main() {
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let project_root = Path::new(&manifest_dir).parent().unwrap();
-    
+    let manifest_dir_path = Path::new(&manifest_dir);
+
     // Determine the target platform and copy appropriate binaries
     #[cfg(target_os = "windows")]
-    copy_windows_binaries(&project_root);
-    
+    copy_windows_binaries(&project_root, manifest_dir_path);
+
     #[cfg(target_os = "linux")]
-    copy_linux_binaries(&project_root);
-    
+    copy_linux_binaries(&project_root, manifest_dir_path);
+
     tauri_build::build()
 }
 
 #[cfg(target_os = "windows")]
-fn copy_windows_binaries(project_root: &Path) {
+fn copy_windows_binaries(project_root: &Path, manifest_dir: &Path) {
     let bin_src = project_root.join("bin").join("windows").join("amd64");
-    
-    // Create resources/binaries directory in the output directory
-    let out_dir = std::env::var("OUT_DIR").unwrap();
-    let resources_dir = Path::new(&out_dir)
-        .parent()
-        .unwrap()
-        .parent()
-        .unwrap()
-        .parent()
-        .unwrap()
-        .join("resources")
-        .join("binaries");
+
+    // Create resources/binaries directory in the source directory
+    let resources_dir = manifest_dir.join("resources").join("binaries");
     
     if !resources_dir.exists() {
         fs::create_dir_all(&resources_dir)
@@ -60,20 +52,11 @@ fn copy_windows_binaries(project_root: &Path) {
 }
 
 #[cfg(target_os = "linux")]
-fn copy_linux_binaries(project_root: &Path) {
+fn copy_linux_binaries(project_root: &Path, manifest_dir: &Path) {
     let bin_src = project_root.join("bin").join("linux").join("amd64");
-    
-    // Create resources/binaries directory in the output directory
-    let out_dir = std::env::var("OUT_DIR").unwrap();
-    let resources_dir = Path::new(&out_dir)
-        .parent()
-        .unwrap()
-        .parent()
-        .unwrap()
-        .parent()
-        .unwrap()
-        .join("resources")
-        .join("binaries");
+
+    // Create resources/binaries directory in the source directory
+    let resources_dir = manifest_dir.join("resources").join("binaries");
     
     if !resources_dir.exists() {
         fs::create_dir_all(&resources_dir)
@@ -118,4 +101,3 @@ fn copy_linux_binaries(project_root: &Path) {
         println!("cargo:warning=age-keygen not found at {}", age_keygen_src.display());
     }
 }
-
