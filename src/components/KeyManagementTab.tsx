@@ -51,7 +51,9 @@ export function KeyManagementTab() {
       setGeneratedKey(keyPair);
       setComment('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate keys');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to generate keys';
+      console.error('Key generation error:', errorMsg);
+      setError(errorMsg);
       setGeneratedKey(null);
     } finally {
       setIsGenerating(false);

@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-**Tauriage** is a cross-platform age file encryption desktop application built with **Tauri 2.0** (Rust backend + TypeScript/React frontend with Vite).
+**Tauriage** is a cross-platform age file encryption desktop application built with **Tauri 2.0** (Rust backend + TypeScript/React + Tailwind CSS v4 frontend with Vite).
 
 ### Core Components
 - **Frontend** (`src/`): React+TS UI with 3 main tabs (Key Management, Encryption, Decryption)

@@ -9,6 +9,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_shell::init())
         .manage(commands::KeyStore {
             keys: std::sync::Mutex::new(Vec::new()),
         })
@@ -24,6 +25,7 @@ pub fn run() {
             commands::save_key_storage_cmd,
             commands::create_stored_key_cmd,
             commands::get_user_home_directory,
+            commands::get_platform,
             commands::list_directory_contents
         ])
         .run(tauri::generate_context!())

@@ -100,6 +100,17 @@ pub fn get_user_home_directory() -> Result<String, String> {
         .map(|p| p.to_string_lossy().to_string())
 }
 
+#[tauri::command]
+pub fn get_platform() -> String {
+    let os = std::env::consts::OS;
+    match os {
+        "windows" => "windows".to_string(),
+        "linux" => "linux".to_string(),
+        "macos" => "macos".to_string(),
+        _ => os.to_string(),
+    }
+}
+
 #[derive(serde::Serialize)]
 pub struct DirectoryItem {
     pub name: String,

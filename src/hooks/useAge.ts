@@ -1,4 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
+import { confirm, message } from '@tauri-apps/plugin-dialog';
+import { Command } from '@tauri-apps/plugin-shell';
 import { AgeKeyPair, EncryptionResult, DecryptionResult } from '../types';
 
 export const useAgeOperations = () => {
@@ -6,7 +8,109 @@ export const useAgeOperations = () => {
     try {
       return await invoke('generate_age_keys', { comment });
     } catch (error) {
-      throw new Error(`Failed to generate keys: ${error}`);
+      console.error('Raw error object:', error);
+      console.error('Error type:', typeof error);
+      console.error('Error keys:', Object.keys(error || {}));
+      
+      const errorMessage = String(error);
+      console.error('Error string:', errorMessage);
+      
+      // Check if this is an age-keygen not found error
+      const isAgeNotFound = 
+        errorMessage.includes('age') || 
+        errorMessage.includes('not found') || 
+        errorMessage.includes('Failed to execute') ||
+        errorMessage.includes('program not found');
+      
+      console.log('Is age not found error?', isAgeNotFound);
+      console.log('Full error message:', errorMessage);
+      
+      if (isAgeNotFound) {
+        console.log('Showing confirm dialog for age installation...');
+        try {
+          const confirmed = await confirm('Age command-line tool is not installed. Would you like to install it now?', {
+            title: 'Install Age',
+            kind: 'info',
+          });
+          console.log('User confirmed installation:', confirmed);
+          
+          if (confirmed) {
+            try {
+              const os = await invoke('get_platform') as string;
+              console.log('Detected OS:', os);
+              let commandName = '';
+              let displayCommand = '';
+
+              if (os === 'windows') {
+                commandName = 'install-age-windows';
+                displayCommand = 'winget install --id FiloSottile.age';
+              } else if (os === 'linux') {
+                commandName = 'install-age-linux';
+                displayCommand = 'apt install age (or dnf install age)';
+              } else if (os === 'macos') {
+                commandName = 'install-age-macos';
+                displayCommand = 'brew install age';
+              } else {
+                throw new Error(`Unsupported OS: ${os}`);
+              }
+
+              // Show progress message
+              console.log(`Installing age using: ${displayCommand}`);
+              
+              const cmd = Command.create(commandName);
+              const installOutput = await cmd.execute();
+              console.log('Installation output:', installOutput);
+              
+              // Check if installation was successful
+              if (installOutput.code === 0 || installOutput.code === null) {
+                // Show success message
+                await message(`Age has been installed successfully!\n\nCommand: ${displayCommand}\n\nRetrying key generation...`, {
+                  title: 'Installation Successful',
+                  kind: 'info',
+                });
+                
+                // Small delay to ensure age is in PATH
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Try again
+                console.log('Retrying key generation after installation...');
+                return await invoke('generate_age_keys', { comment });
+              } else {
+                const errorOutput = installOutput.stderr || installOutput.stdout || 'Unknown error';
+                console.error('Installation failed with code:', installOutput.code);
+                console.error('Installation error output:', errorOutput);
+                
+                await message(`Age installation failed.\n\nError: ${errorOutput}\n\nPlease install age manually using:\n${displayCommand}`, {
+                  title: 'Installation Failed',
+                  kind: 'error',
+                });
+                
+                throw new Error(`Installation failed with code ${installOutput.code}: ${errorOutput}`);
+              }
+            } catch (installError) {
+              console.error('Installation error:', installError);
+              const errorMsg = String(installError);
+              
+              // If it's not already a dialog error, show one
+              if (!errorMsg.includes('Installation')) {
+                await message(`Failed to install age: ${errorMsg}\n\nPlease install age manually using the appropriate command for your OS.`, {
+                  title: 'Installation Error',
+                  kind: 'error',
+                });
+              }
+              
+              throw installError;
+            }
+          } else {
+            throw new Error('Age installation cancelled by user');
+          }
+        } catch (dialogError) {
+          console.error('Dialog error:', dialogError);
+          throw error;
+        }
+      } else {
+        throw error;
+      }
     }
   };
 
