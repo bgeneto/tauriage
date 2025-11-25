@@ -64,46 +64,17 @@ def generate_icons():
         except Exception as e:
             print(f"Failed to generate icon.icns: {e}")
 
-    # Generate icon.ico
-    # ICO also supports multiple sizes.
-    ico_sizes = [(16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
-    ico_images = []
-    for size in ico_sizes:
-        try:
-            resized = img.resize(size, Image.Resampling.LANCZOS)
-            ico_images.append(resized)
         except Exception as e:
-            print(f"Error creating size {size} for ICO: {e}")
-            
-    if ico_images:
-        try:
-            ico_path = os.path.join(dest_dir, "icon.ico")
-            # Pillow saves ICO with all sizes if passed as append_images?
-            # Actually for ICO, Pillow format='ICO' supports sizes parameter or append_images?
-            # It seems Pillow's ICO plugin handles saving multiple sizes if you pass them.
-            # But the standard way is similar to ICNS or just saving one image with sizes=[...]?
-            # Actually, standard Pillow save(fp, format='ICO', sizes=[(w,h), ...]) might resize itself?
-            # Or better: img.save(fp, format='ICO', sizes=[...])
-            # But we already resized them for better quality control (LANCZOS).
-            # So we use append_images.
-            
-            primary = ico_images[0] # Start with small or large? 
-            # Pillow docs say: "The sizes argument ... is a list of sizes ... to be included ... "
-            # If we have separate images, we can use append_images.
-            
-            # Let's use the largest as primary and append others?
-            # Or just use the largest and let Pillow resize? 
-            # "If the image is not one of the supported sizes, it will be resized."
-            # But we want high quality resizing.
-            
-            # Let's try appending.
-            primary = ico_images[-1] # Largest (256x256)
-            others = ico_images[:-1]
-            # Note: ICO format in Pillow might expect the images to be in the list.
-            primary.save(ico_path, format='ICO', append_images=others)
-            print("Generated icon.ico")
-        except Exception as e:
-            print(f"Failed to generate icon.ico: {e}")
+            print(f"Failed to generate icon.icns: {e}")
+
+    # Generate icon.ico as 128x128
+    try:
+        ico_path = os.path.join(dest_dir, "icon.ico")
+        resized_128 = img.resize((128, 128), Image.Resampling.LANCZOS)
+        resized_128.save(ico_path, format='ICO')
+        print("Generated icon.ico (128x128)")
+    except Exception as e:
+        print(f"Failed to generate icon.ico: {e}")
 
 if __name__ == "__main__":
     generate_icons()
