@@ -51,7 +51,7 @@ export function EncryptionTab() {
 
   useEffect(() => {
     const appWindow = getCurrentWebviewWindow();
-    
+
     const unlistenPromise = appWindow.onDragDropEvent((event) => {
       if (event.payload.type === 'over') {
         setIsDragging(true);
@@ -83,7 +83,7 @@ export function EncryptionTab() {
       multiple: false,
       directory: false,
     });
-    
+
     if (file) {
       const filePath = file as string;
       setEncryptionSelectedFile(filePath);
@@ -214,10 +214,10 @@ export function EncryptionTab() {
           <div
             className={`
               border-2 border-dashed rounded-lg p-12 text-center transition-all
-              ${isDragging 
-                ? 'border-primary-500 bg-primary-50' 
-                : encryption.selectedFile 
-                  ? 'border-green-400 bg-green-50' 
+              ${isDragging
+                ? 'border-primary-500 bg-primary-50'
+                : encryption.selectedFile
+                  ? 'border-green-400 bg-green-50'
                   : 'border-slate-300 bg-slate-50 hover:border-primary-400 hover:bg-slate-100'
               }
             `}
@@ -286,7 +286,7 @@ export function EncryptionTab() {
         <div className="space-y-4">
           <div className="bg-white rounded-lg p-6 border border-slate-200 space-y-4">
             <h3 className="text-lg font-semibold text-slate-900">🔑 Add Recipients</h3>
-            
+
             {storedKeys.length > 0 && (
               <div className="space-y-2">
                 <div className="text-sm font-medium text-slate-700">Your saved keys:</div>

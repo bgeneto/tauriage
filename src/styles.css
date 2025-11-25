@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary-50: #f8f9ff;
+  --color-primary-100: #f0f4ff;
+  --color-primary-500: #667eea;
+  --color-primary-600: #5a67d8;
+  --color-primary-700: #4c51bf;
+  --color-primary-800: #3b3f8f;
+  --color-primary-900: #2d2f5f;
+  --color-secondary: #764ba2;
+}
+
 /* Ensure light mode is default */
 html,
 body {

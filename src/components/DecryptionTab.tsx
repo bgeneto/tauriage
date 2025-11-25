@@ -150,9 +150,9 @@ export function DecryptionTab() {
         const trimmed = decryption.identity.trim();
         const isAgeKey = trimmed.startsWith('AGE-SECRET-KEY-');
         const isSshKey = trimmed.startsWith('-----BEGIN') || trimmed.startsWith('ssh-');
-        
+
         if (!isAgeKey && !isSshKey) {
-            showToast('error', 'Invalid key format', 
+            showToast('error', 'Invalid key format',
                 'Key must be either:\n• Age key: AGE-SECRET-KEY-...\n• SSH key: -----BEGIN or ssh-...');
             return;
         }
@@ -180,17 +180,17 @@ export function DecryptionTab() {
             const clipboard = await readText();
             if (clipboard && clipboard.trim()) {
                 const trimmed = clipboard.trim();
-                
+
                 // Validate key format
                 const isAgeKey = trimmed.startsWith('AGE-SECRET-KEY-');
                 const isSshKey = trimmed.startsWith('-----BEGIN') || trimmed.startsWith('ssh-');
-                
+
                 if (!isAgeKey && !isSshKey) {
-                    showToast('error', 'Invalid key format', 
+                    showToast('error', 'Invalid key format',
                         'Key must be either an age key (AGE-SECRET-KEY-...) or SSH key (-----BEGIN... or ssh-...)');
                     return;
                 }
-                
+
                 setDecryptionIdentity(trimmed);
                 const keyType = isAgeKey ? 'age' : 'SSH';
                 showToast('success', 'Pasted from clipboard', `${keyType} private key loaded`);
