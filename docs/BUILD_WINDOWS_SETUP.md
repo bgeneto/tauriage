@@ -1,4 +1,4 @@
-# Building MSI and Setup EXE for Tauriage (Tauri 2.0)
+# Building MSI and Setup EXE for TauriAge (Tauri 2.0)
 
 ## Prerequisites
 
@@ -41,7 +41,7 @@ npm --version
 
 ### Step 1: Install Dependencies
 ```powershell
-cd c:\Users\bernh\Documents\GitHub\tauriage
+cd c:\Users\bernh\Documents\GitHub\TauriAge
 npm install
 cd src-tauri
 cargo build --release
@@ -65,8 +65,8 @@ npm run tauri build
 This will:
 - Compile Rust backend in release mode
 - Bundle frontend assets
-- Generate MSI installer (`tauriage_0.1.0_x64_en-US.msi`)
-- Generate NSIS setup EXE (`tauriage_0.1.0_x64-setup.exe`)
+- Generate MSI installer (`TauriAge_0.1.0_x64_en-US.msi`)
+- Generate NSIS setup EXE (`TauriAge_0.1.0_x64-setup.exe`)
 
 ### Step 4: Locate the Installers
 
@@ -74,17 +74,17 @@ After successful build, find the installers in:
 ```
 src-tauri/target/release/bundle/
 ├── msi/
-│   └── tauriage_0.1.0_x64_en-US.msi
+│   └── TauriAge_0.1.0_x64_en-US.msi
 └── nsis/
-    └── tauriage_0.1.0_x64-setup.exe
+    └── TauriAge_0.1.0_x64-setup.exe
 ```
 
 ## Build Output Explained
 
 | File | Description |
 |------|-------------|
-| `tauriage_0.1.0_x64_en-US.msi` | Windows Installer (MSI format) - recommended for enterprise/automatic deployment |
-| `tauriage_0.1.0_x64-setup.exe` | NSIS Setup Executable - traditional Windows installer with wizard |
+| `TauriAge_0.1.0_x64_en-US.msi` | Windows Installer (MSI format) - recommended for enterprise/automatic deployment |
+| `TauriAge_0.1.0_x64-setup.exe` | NSIS Setup Executable - traditional Windows installer with wizard |
 
 ## Customizing the Installer
 
@@ -94,7 +94,7 @@ Edit `src-tauri/tauri.conf.json`:
 "bundle": {
   "windows": {
     "wix": {
-      "productName": "Tauriage",
+      "productName": "TauriAge",
       "description": "Age file encryption desktop application",
       "dialogImagePath": "path/to/dialog.bmp",  // 493x312 pixels
       "bannerPath": "path/to/banner.bmp"        // 493x58 pixels
@@ -163,8 +163,8 @@ Before building for distribution:
 - [ ] Run frontend build: `npm run build`
 - [ ] Run full build: `npm run tauri build`
 - [ ] Test both installers:
-  - Install MSI: `msiexec /i tauriage_0.1.0_x64_en-US.msi`
-  - Install EXE: `tauriage_0.1.0_x64-setup.exe`
+  - Install MSI: `msiexec /i TauriAge_0.1.0_x64_en-US.msi`
+  - Install EXE: `TauriAge_0.1.0_x64-setup.exe`
   - Test installed application functionality
   - Verify uninstall works cleanly
   
@@ -174,10 +174,10 @@ For production releases, code sign your executables:
 
 ```powershell
 # Sign MSI
-signtool sign /f certificate.pfx /p password /t http://timestamp.server.com tauriage_0.1.0_x64_en-US.msi
+signtool sign /f certificate.pfx /p password /t http://timestamp.server.com TauriAge_0.1.0_x64_en-US.msi
 
 # Sign Setup EXE
-signtool sign /f certificate.pfx /p password /t http://timestamp.server.com tauriage_0.1.0_x64-setup.exe
+signtool sign /f certificate.pfx /p password /t http://timestamp.server.com TauriAge_0.1.0_x64-setup.exe
 ```
 
 Requires:

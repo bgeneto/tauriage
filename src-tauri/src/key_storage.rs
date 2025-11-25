@@ -44,11 +44,11 @@ pub fn create_stored_key(
 /// In production, consider using more robust solutions like age itself for key storage
 pub fn create_passphrase_encrypted_container(
     passphrase: &str,
-    keys: &[StoredKey]
+    keys: &[StoredKey],
 ) -> Result<Vec<u8>, String> {
     use aes_gcm::{
         aead::{Aead, AeadCore, KeyInit, OsRng},
-        Aes256Gcm, Key
+        Aes256Gcm, Key,
     };
     use pbkdf2::pbkdf2_hmac;
     use sha2::Sha256;
@@ -60,8 +60,8 @@ pub fn create_passphrase_encrypted_container(
     };
 
     // Serialize to JSON first
-    let json_data = serde_json::to_vec(&storage)
-        .map_err(|e| format!("Failed to serialize keys: {}", e))?;
+    let json_data =
+        serde_json::to_vec(&storage).map_err(|e| format!("Failed to serialize keys: {}", e))?;
 
     // Derive key from passphrase using PBKDF2
     let mut key = [0u8; 32];
@@ -73,7 +73,8 @@ pub fn create_passphrase_encrypted_container(
 
     // Encrypt the data
     let cipher = Aes256Gcm::new(&aes_key);
-    let ciphertext = cipher.encrypt(&nonce, json_data.as_ref())
+    let ciphertext = cipher
+        .encrypt(&nonce, json_data.as_ref())
         .map_err(|e| format!("Encryption failed: {:?}", e))?;
 
     // Combine nonce + ciphertext
@@ -86,11 +87,11 @@ pub fn create_passphrase_encrypted_container(
 /// Decrypt passphrase-encrypted key storage container
 pub fn decrypt_passphrase_container(
     passphrase: &str,
-    encrypted_data: &[u8]
+    encrypted_data: &[u8],
 ) -> Result<Vec<StoredKey>, String> {
     use aes_gcm::{
         aead::{Aead, KeyInit},
-        Aes256Gcm, Key
+        Aes256Gcm, Key,
     };
     use pbkdf2::pbkdf2_hmac;
     use sha2::Sha256;
@@ -110,8 +111,14 @@ pub fn decrypt_passphrase_container(
 
     // Decrypt
     let cipher = Aes256Gcm::new(&aes_key);
-    let decrypted_bytes = cipher.decrypt(nonce_slice.into(), ciphertext)
-        .map_err(|e| format!("Decryption failed - incorrect passphrase or corrupted data: {:?}", e))?;
+    let decrypted_bytes = cipher
+        .decrypt(nonce_slice.into(), ciphertext)
+        .map_err(|e| {
+            format!(
+                "Decryption failed - incorrect passphrase or corrupted data: {:?}",
+                e
+            )
+        })?;
 
     // Parse JSON
     let storage: KeyStorage = serde_json::from_slice(&decrypted_bytes)
@@ -121,7 +128,11 @@ pub fn decrypt_passphrase_container(
 }
 
 /// Save encrypted key storage to a file
-pub fn save_key_storage(passphrase: &str, keys: &[StoredKey], file_path: &str) -> Result<(), String> {
+pub fn save_key_storage(
+    passphrase: &str,
+    keys: &[StoredKey],
+    file_path: &str,
+) -> Result<(), String> {
     let encrypted_data = create_passphrase_encrypted_container(passphrase, keys)?;
 
     fs::write(file_path, encrypted_data)
@@ -132,8 +143,8 @@ pub fn save_key_storage(passphrase: &str, keys: &[StoredKey], file_path: &str) -
 
 /// Load encrypted key storage from a file
 pub fn load_key_storage(passphrase: &str, file_path: &str) -> Result<Vec<StoredKey>, String> {
-    let encrypted_data = fs::read(file_path)
-        .map_err(|e| format!("Failed to read key storage file: {}", e))?;
+    let encrypted_data =
+        fs::read(file_path).map_err(|e| format!("Failed to read key storage file: {}", e))?;
 
     decrypt_passphrase_container(passphrase, &encrypted_data)
 }
@@ -145,10 +156,9 @@ pub fn key_storage_exists(file_path: &str) -> bool {
 
 /// Get default key storage path (in user config directory)
 pub fn get_default_key_storage_path() -> Result<String, String> {
-    let config_dir = dirs::config_dir()
-        .ok_or("Could not determine config directory")?;
+    let config_dir = dirs::config_dir().ok_or("Could not determine config directory")?;
 
-    let age_dir = config_dir.join("tauriage");
+    let age_dir = config_dir.join("TauriAge");
     std::fs::create_dir_all(&age_dir)
         .map_err(|e| format!("Could not create config directory: {}", e))?;
 
@@ -157,10 +167,9 @@ pub fn get_default_key_storage_path() -> Result<String, String> {
 
 /// Get passphrase config file path
 pub fn get_passphrase_file_path() -> Result<String, String> {
-    let config_dir = dirs::config_dir()
-        .ok_or("Could not determine config directory")?;
+    let config_dir = dirs::config_dir().ok_or("Could not determine config directory")?;
 
-    let age_dir = config_dir.join("tauriage");
+    let age_dir = config_dir.join("TauriAge");
     std::fs::create_dir_all(&age_dir)
         .map_err(|e| format!("Could not create config directory: {}", e))?;
 
@@ -169,23 +178,23 @@ pub fn get_passphrase_file_path() -> Result<String, String> {
 
 /// Generate a strong passphrase based on username and random component
 pub fn generate_auto_passphrase() -> Result<String, String> {
-    use sha2::{Sha256, Digest};
     use rand::Rng;
-    
+    use sha2::{Digest, Sha256};
+
     // Get username
     let username = whoami::username();
-    
+
     // Generate random bytes
     let mut rng = rand::thread_rng();
     let mut random_bytes = [0u8; 16];
     rng.fill(&mut random_bytes);
-    
+
     // Create hash of username + random bytes
     let mut hasher = Sha256::new();
     hasher.update(username.as_bytes());
     hasher.update(&random_bytes);
     let result = hasher.finalize();
-    
+
     // Convert to hex string
     let passphrase = format!("{:x}", result);
     Ok(passphrase)
@@ -194,20 +203,20 @@ pub fn generate_auto_passphrase() -> Result<String, String> {
 /// Get or create the auto passphrase
 pub fn get_or_create_passphrase() -> Result<String, String> {
     let passphrase_file = get_passphrase_file_path()?;
-    
+
     // Try to read existing passphrase
     if Path::new(&passphrase_file).exists() {
         let passphrase = fs::read_to_string(&passphrase_file)
             .map_err(|e| format!("Failed to read passphrase file: {}", e))?;
         return Ok(passphrase.trim().to_string());
     }
-    
+
     // Generate new passphrase
     let passphrase = generate_auto_passphrase()?;
-    
+
     // Save it
     fs::write(&passphrase_file, &passphrase)
         .map_err(|e| format!("Failed to write passphrase file: {}", e))?;
-    
+
     Ok(passphrase)
 }

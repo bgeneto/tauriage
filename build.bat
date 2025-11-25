@@ -1,12 +1,12 @@
 @echo off
-REM Build script for Tauriage Windows installers (MSI + Setup EXE)
+REM Build script for TauriAge Windows installers (MSI + Setup EXE)
 REM Run as: build.bat from project root
 
 setlocal enabledelayedexpansion
 
 echo.
 echo ===============================================
-echo Tauriage Windows Installer Builder
+echo TauriAge Windows Installer Builder
 echo ===============================================
 echo.
 

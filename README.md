@@ -1,8 +1,8 @@
-# Tauriage
+# TauriAge
 
-**Tauriage** is a modern, cross-platform desktop application for secure file encryption using the [age](https://age-encryption.org/) encryption tool. Built with **Tauri 2.0**, it combines the performance and security of a **Rust** backend with a responsive **React/TypeScript** frontend.
+**TauriAge** is a modern, cross-platform desktop application for secure file encryption using the [age](https://age-encryption.org/) encryption tool. Built with **Tauri 2.0**, it combines the performance and security of a **Rust** backend with a responsive **React/TypeScript** frontend.
 
-![Tauriage App](app-icon.png)
+![TauriAge App](app-icon.png)
 
 ## 🚀 Features
 
@@ -34,8 +34,8 @@
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/bgeneto/tauriage.git
-    cd tauriage
+    git clone https://github.com/bgeneto/TauriAge.git
+    cd TauriAge
     ```
 
 2.  **Install frontend dependencies:**

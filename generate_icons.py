@@ -2,8 +2,8 @@ import os
 from PIL import Image
 
 def generate_icons():
-    source_path = r"C:\Users\bernh\Documents\GitHub\tauriage\src-tauri\icons\icon.png"
-    dest_dir = r"C:\Users\bernh\Documents\GitHub\tauriage\src-tauri\icons"
+    source_path = r"C:\Users\bernh\Documents\GitHub\TauriAge\src-tauri\icons\icon.png"
+    dest_dir = r"C:\Users\bernh\Documents\GitHub\TauriAge\src-tauri\icons"
 
     if not os.path.exists(source_path):
         print(f"Error: Source file not found at {source_path}")

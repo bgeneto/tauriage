@@ -1,4 +1,4 @@
-# UI/UX Refactoring Complete - Tauriage
+# UI/UX Refactoring Complete - TauriAge
 
 ## Changes Made
 

@@ -3,10 +3,11 @@ import { invoke } from '@tauri-apps/api/core';
 import { KeyManagementTab } from './KeyManagementTab';
 import { EncryptionTab } from './EncryptionTab';
 import { DecryptionTab } from './DecryptionTab';
+import { AboutTab } from './AboutTab';
 import Toast, { ToastMessage } from './Toast';
 import { EncryptionStateProvider, useEncryptionState } from '../context/EncryptionStateContext';
 
-type TabType = 'keys' | 'encrypt' | 'decrypt';
+type TabType = 'keys' | 'encrypt' | 'decrypt' | 'about';
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState<TabType>('keys');
@@ -17,6 +18,7 @@ function AppContent() {
     { id: 'keys' as const, label: 'Key Management', description: 'Generate and manage age keys', icon: '🔑' },
     { id: 'encrypt' as const, label: 'Encrypt', description: 'Encrypt files', icon: '🔒' },
     { id: 'decrypt' as const, label: 'Decrypt', description: 'Decrypt files', icon: '🔓' },
+    { id: 'about' as const, label: 'About', description: 'Version & Info', icon: 'ℹ️' },
   ];
 
   const showToast = (type: 'success' | 'error' | 'warning' | 'info', title: string, message?: string) => {
@@ -104,6 +106,7 @@ function AppContent() {
             {activeTab === 'keys' && <KeyManagementTab />}
             {activeTab === 'encrypt' && <EncryptionTab />}
             {activeTab === 'decrypt' && <DecryptionTab />}
+            {activeTab === 'about' && <AboutTab />}
           </div>
         </main>
       </div>

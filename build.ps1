@@ -1,4 +1,4 @@
-# Build script for Tauriage Windows installers (MSI + Setup EXE)
+# Build script for TauriAge Windows installers (MSI + Setup EXE)
 # Run as: .\build.ps1 from project root
 
 param(

@@ -2,7 +2,7 @@
 
 ## What's Changed
 
-Your Tauriage app now has:
+Your TauriAge app now has:
 ✅ **Sidebar navigation** (left side, not top)
 ✅ **Tailwind CSS v4** styling throughout
 ✅ **Fixed blinking file explorer** - now renders cleanly

@@ -1,8 +1,8 @@
-# Tauriage Copilot Instructions
+# TauriAge Copilot Instructions
 
 ## Architecture Overview
 
-**Tauriage** is a cross-platform age file encryption desktop application built with **Tauri 2.0** (Rust backend + TypeScript/React + Tailwind CSS v4 frontend with Vite).
+**TauriAge** is a cross-platform age file encryption desktop application built with **Tauri 2.0** (Rust backend + TypeScript/React + Tailwind CSS v4 frontend with Vite).
 
 ### Core Components
 - **Frontend** (`src/`): React+TS UI with 3 main tabs (Key Management, Encryption, Decryption)
@@ -65,7 +65,7 @@ cargo build                          # Build debug binary
 - Mismatch causes silent deserialization failures
 
 ### Key Storage Security
-- Keys stored encrypted at `~/.config/tauriage/` (configurable path)
+- Keys stored encrypted at `~/.config/TauriAge/` (configurable path)
 - Passphrase → PBKDF2 (100k iterations, SHA-256) → AES-256-GCM encryption
 - **Note**: Not production-ready; consider age itself for key storage in future
 
