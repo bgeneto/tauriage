@@ -1,10 +1,10 @@
-import { open } from '@tauri-apps/plugin-opener';
+import { openUrl } from '@tauri-apps/plugin-opener';
 import appIcon from '../assets/icon.png';
 
 export function AboutTab() {
     const handleOpenLink = async (url: string) => {
         try {
-            await open(url);
+            await openUrl(url);
         } catch (error) {
             console.error('Failed to open URL:', error);
         }
