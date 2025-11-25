@@ -225,10 +225,10 @@ export function DecryptionTab() {
                         className={`
               border-2 border-dashed rounded-lg p-12 text-center transition-all
               ${isDragging
-                                ? 'border-emerald-500 bg-emerald-50'
+                                ? 'border-slate-500 bg-slate-100'
                                 : decryption.selectedFile
-                                    ? 'border-green-400 bg-green-50'
-                                    : 'border-slate-300 bg-slate-50 hover:border-emerald-400 hover:bg-slate-100'
+                                    ? 'border-slate-400 bg-slate-50'
+                                    : 'border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50'
                             }
             `}
                     >
@@ -242,15 +242,15 @@ export function DecryptionTab() {
                                 <div className="flex gap-2">
                                     <button
                                         onClick={handleBrowseFile}
-                                        className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors"
+                                        className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-medium transition-colors"
                                         style={{ color: '#ffffff' }}
                                     >
                                         Choose Different File
                                     </button>
                                     <button
                                         onClick={() => setDecryptionSelectedFile(null)}
-                                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
-                                        style={{ color: '#ffffff' }}
+                                        className="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg font-medium transition-colors"
+                                        style={{ color: '#334155' }}
                                     >
                                         Remove
                                     </button>
@@ -266,7 +266,7 @@ export function DecryptionTab() {
                                     <div className="text-sm text-slate-500 mb-4">or</div>
                                     <button
                                         onClick={handleBrowseFile}
-                                        className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors"
+                                        className="px-6 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-medium transition-colors"
                                         style={{ color: '#ffffff' }}
                                     >
                                         Browse Files
@@ -279,13 +279,13 @@ export function DecryptionTab() {
                     {/* Output Location */}
                     <div className="space-y-3 bg-white rounded-lg p-6 border border-slate-200">
                         <h3 className="text-lg font-semibold text-slate-900">💾 Output Location</h3>
-                        <div className={`px-3 py-2 rounded text-sm truncate border ${decryption.outputFile ? 'bg-green-50 border-green-300 text-green-700 font-medium' : 'bg-slate-50 border-slate-200 text-slate-600'}`}>
+                        <div className={`px-3 py-2 rounded text-sm truncate border ${decryption.outputFile ? 'bg-slate-50 border-slate-300 text-slate-700 font-medium' : 'bg-white border-slate-200 text-slate-500'}`}>
                             {decryption.outputFile || 'Choose where to save decrypted file...'}
                         </div>
                         <button
                             onClick={handlePickOutputFile}
-                            className="w-full px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors"
-                            style={{ color: '#ffffff' }}
+                            className="w-full px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg font-medium transition-colors"
+                            style={{ color: '#334155' }}
                         >
                             Choose Location
                         </button>
@@ -307,7 +307,7 @@ export function DecryptionTab() {
                                             <button
                                                 key={key.id}
                                                 onClick={() => handleUseStoredKey(key)}
-                                                className="w-full text-left px-3 py-2 text-sm bg-slate-50 hover:bg-emerald-50 text-slate-700 rounded border border-slate-200 hover:border-emerald-300 transition-colors"
+                                                className="w-full text-left px-3 py-2 text-sm bg-white hover:bg-slate-50 text-slate-700 rounded border border-slate-200 hover:border-slate-300 transition-colors"
                                             >
                                                 + Use {key.name}
                                             </button>
@@ -322,14 +322,14 @@ export function DecryptionTab() {
                                 value={decryption.identity}
                                 onChange={(e) => setDecryptionIdentity(e.target.value)}
                                 placeholder="AGE-SECRET-KEY-..."
-                                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 font-mono focus:outline-none focus:ring-2 focus:ring-slate-500"
                                 rows={4}
                             />
                             <div className="flex gap-2">
                                 <button
                                     onClick={handlePastePrivateKeyFromClipboard}
-                                    className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-medium transition-colors"
-                                    style={{ color: '#ffffff' }}
+                                    className="flex-1 px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded font-medium transition-colors"
+                                    style={{ color: '#334155' }}
                                 >
                                     📋 Paste from Clipboard
                                 </button>
@@ -347,7 +347,7 @@ export function DecryptionTab() {
                             <div className="font-semibold text-emerald-900 mb-2">
                                 ✓ Private key loaded
                             </div>
-                            <div className="text-sm text-emerald-700">
+                            <div className="text-sm text-slate-600">
                                 Ready to decrypt
                             </div>
                         </div>
@@ -359,7 +359,7 @@ export function DecryptionTab() {
             <button
                 onClick={handleDecrypt}
                 disabled={isDecrypting}
-                className="w-full px-6 py-4 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl text-lg"
+                className="w-full px-6 py-4 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-all shadow-sm hover:shadow-md text-lg"
                 style={{ color: '#ffffff' }}
             >
                 {isDecrypting ? '⏳ Decrypting...' : '🔓 Decrypt File'}

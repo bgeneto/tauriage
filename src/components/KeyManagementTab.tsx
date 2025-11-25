@@ -20,14 +20,14 @@ export function KeyManagementTab() {
 
   const { generateKeys } = useAgeOperations();
   const { saveKeyStorage, createStoredKey, loadKeyStorage, keyStorageExists } = useKeyStore();
-  const { 
+  const {
     keyManagement: { generatedKey, keyName, storedKeys },
     setGeneratedKey,
     setKeyName,
     setStoredKeys,
     removeStoredKey,
-    addEncryptionRecipient, 
-    setDecryptionIdentity 
+    addEncryptionRecipient,
+    setDecryptionIdentity
   } = useEncryptionState();
 
   const showToast = (type: 'success' | 'error' | 'warning' | 'info', title: string, message?: string) => {
@@ -116,7 +116,7 @@ export function KeyManagementTab() {
 
       const newStoredKeys = [...storedKeys, storedKey];
       setStoredKeys(newStoredKeys);
-      
+
       // Auto-save to encrypted storage with the auto-passphrase
       try {
         await saveKeyStorage(autoPassphrase, newStoredKeys);
@@ -126,7 +126,7 @@ export function KeyManagementTab() {
         showToast('warning', 'Key stored but not encrypted', 'Failed to save to encrypted storage, key is in memory only');
         console.error('Failed to save to encrypted storage:', saveErr);
       }
-      
+
       setGeneratedKey(null);
       setKeyName('');
     } catch (error) {
@@ -180,7 +180,7 @@ export function KeyManagementTab() {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-start gap-3">
+        <div className="bg-slate-50 border border-slate-200 text-slate-800 px-4 py-3 rounded-lg flex items-start gap-3">
           <span className="text-xl">⚠️</span>
           <div>{error}</div>
         </div>
@@ -197,7 +197,7 @@ export function KeyManagementTab() {
             onClick={handleGenerateKeys}
             disabled={isGenerating}
             style={{ color: '#ffffff' }}
-            className="mt-6 w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-lg font-semibold transition-colors text-base shadow-md hover:shadow-lg disabled:shadow-none flex items-center justify-center whitespace-nowrap"
+            className="mt-6 w-full px-6 py-3 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-lg font-semibold transition-colors text-base shadow-sm hover:shadow-md disabled:shadow-none flex items-center justify-center whitespace-nowrap"
           >
             {isGenerating ? '⏳ Generating...' : '🔑 Generate New Keys'}
           </button>
@@ -206,32 +206,32 @@ export function KeyManagementTab() {
 
       {/* Generated Key Display */}
       {generatedKey && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-900 mb-4">Generated Key Pair</h3>
+        <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Generated Key Pair</h3>
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-blue-900">Key Name</label>
+              <label className="block text-sm font-medium text-slate-700">Key Name</label>
               <input
                 type="text"
                 value={keyName}
                 onChange={(e) => setKeyName(e.target.value)}
                 placeholder="e.g., My Personal Key, Work Key..."
-                className="w-full px-3 py-2 bg-white border border-blue-300 rounded text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-blue-900">Public Key</label>
+              <label className="block text-sm font-medium text-slate-700">Public Key</label>
               <div className="flex gap-2">
                 <textarea
                   readOnly
                   value={generatedKey.publicKey}
-                  className="flex-1 px-3 py-2 bg-white border border-blue-300 rounded font-mono text-xs text-slate-700"
+                  className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded font-mono text-xs text-slate-700"
                   rows={3}
                 />
                 <button
                   onClick={() => copyToClipboard(generatedKey.publicKey)}
-                  className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors text-sm font-medium"
+                  className="px-3 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded transition-colors text-sm font-medium"
                 >
                   Copy
                 </button>
@@ -239,22 +239,22 @@ export function KeyManagementTab() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-blue-900">Private Key</label>
+              <label className="block text-sm font-medium text-slate-700">Private Key</label>
               <div className="flex gap-2">
                 <textarea
                   readOnly
                   value={generatedKey.privateKey}
-                  className="flex-1 px-3 py-2 bg-white border border-blue-300 rounded font-mono text-xs text-slate-700"
+                  className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded font-mono text-xs text-slate-700"
                   rows={4}
                 />
                 <button
                   onClick={() => copyToClipboard(generatedKey.privateKey)}
-                  className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors text-sm font-medium"
+                  className="px-3 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded transition-colors text-sm font-medium"
                 >
                   Copy
                 </button>
               </div>
-              <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded text-red-800 text-xs">
+              <div className="mt-2 p-2 bg-slate-100 border border-slate-200 rounded text-slate-600 text-xs">
                 🔒 Keep this private key secure! Never share it.
               </div>
             </div>
@@ -262,7 +262,7 @@ export function KeyManagementTab() {
             <button
               onClick={handleStoreGeneratedKey}
               disabled={!keyName.trim()}
-              className="w-full px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+              className="w-full px-4 py-2 bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
             >
               💾 Store This Key
             </button>
@@ -315,25 +315,25 @@ export function KeyManagementTab() {
                       <div className="flex justify-end">
                         <button
                           onClick={() => handleDeleteKey(index)}
-                          className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs font-medium transition-colors"
+                          className="px-3 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-xs font-medium transition-colors"
                         >
                           🗑️ Delete
                         </button>
                       </div>
 
                       {deleteConfirm === key.id && (
-                        <div className="bg-red-50 border border-red-200 rounded p-3 flex items-center justify-between gap-2">
-                          <span className="text-sm text-red-800">Delete this key pair permanently?</span>
+                        <div className="bg-slate-100 border border-slate-200 rounded p-3 flex items-center justify-between gap-2">
+                          <span className="text-sm text-slate-700">Delete this key pair permanently?</span>
                           <div className="flex gap-2">
                             <button
                               onClick={() => confirmDelete(index)}
-                              className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-medium"
+                              className="px-3 py-1 bg-slate-800 hover:bg-slate-900 text-white rounded text-xs font-medium"
                             >
                               Delete
                             </button>
                             <button
                               onClick={() => setDeleteConfirm(null)}
-                              className="px-3 py-1 bg-slate-400 hover:bg-slate-500 text-white rounded text-xs font-medium"
+                              className="px-3 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-xs font-medium"
                             >
                               Cancel
                             </button>
@@ -354,14 +354,14 @@ export function KeyManagementTab() {
                           <div className="flex flex-col gap-1">
                             <button
                               onClick={() => copyToClipboard(key.publicKey)}
-                              className="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
+                              className="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-xs font-medium transition-colors whitespace-nowrap"
                               title="Copy to clipboard"
                             >
                               Copy
                             </button>
                             <button
                               onClick={() => handleUsePublicKey(key.publicKey, key.name)}
-                              className="px-2 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
+                              className="px-2 py-1 bg-slate-800 hover:bg-slate-900 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
                               title="Add as encryption recipient"
                             >
                               Use
@@ -384,14 +384,14 @@ export function KeyManagementTab() {
                             <div className="flex flex-col gap-1">
                               <button
                                 onClick={() => copyToClipboard(key.privateKey!)}
-                                className="px-2 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
+                                className="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-xs font-medium transition-colors whitespace-nowrap"
                                 title="Copy to clipboard"
                               >
                                 Copy
                               </button>
                               <button
                                 onClick={() => handleUsePrivateKey(key.privateKey!, key.name)}
-                                className="px-2 py-1 bg-purple-500 hover:bg-purple-600 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
+                                className="px-2 py-1 bg-slate-800 hover:bg-slate-900 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
                                 title="Load for decryption"
                               >
                                 Use
@@ -415,4 +415,3 @@ export function KeyManagementTab() {
     </div>
   );
 }
-

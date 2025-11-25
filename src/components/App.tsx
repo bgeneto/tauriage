@@ -34,10 +34,10 @@ function AppContent() {
       try {
         // Get the auto-passphrase
         const passphrase = await invoke<string>('get_or_create_passphrase_cmd');
-        
+
         // Check if key storage exists
         const keyStorageExists = await invoke<boolean>('key_storage_exists_cmd', {});
-        
+
         if (keyStorageExists) {
           // Load the stored keys
           const loadedKeys = await invoke<any[]>('load_key_storage_cmd', { passphrase });
@@ -67,9 +67,9 @@ function AppContent() {
       </div>
 
       {/* Header */}
-      <header className="bg-linear-to-r from-indigo-600 to-violet-600 text-white px-8 py-6 shadow-lg">
-        <h1 className="text-3xl font-bold mb-1">Age File Encryption Tool</h1>
-        <p className="text-sm opacity-90">Cross-platform file encryption using age</p>
+      <header className="bg-slate-900 border-b border-slate-800 px-8 py-6">
+        <h1 className="text-3xl font-bold text-white mb-1">Age File Encryption Tool</h1>
+        <p className="text-sm text-slate-400">Cross-platform file encryption using age</p>
       </header>
 
       {/* Main Content with Sidebar */}
@@ -81,11 +81,10 @@ function AppContent() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 ${
-                  activeTab === tab.id
-                    ? 'bg-indigo-100 text-indigo-700 border-l-4 border-indigo-500'
-                    : 'text-slate-700 hover:bg-slate-100'
-                }`}
+                className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 ${activeTab === tab.id
+                  ? 'bg-slate-100 text-slate-900 font-medium'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <span className="text-xl">{tab.icon}</span>

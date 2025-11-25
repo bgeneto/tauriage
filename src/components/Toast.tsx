@@ -32,24 +32,24 @@ const Toast: React.FC<ToastProps> = ({ toast, onClose, duration = 5000 }) => {
   };
 
   const bgColors = {
-    success: 'bg-green-50 border-green-200',
-    error: 'bg-red-50 border-red-200',
-    warning: 'bg-yellow-50 border-yellow-200',
-    info: 'bg-blue-50 border-blue-200',
+    success: 'bg-slate-50 border-slate-200',
+    error: 'bg-slate-50 border-slate-200',
+    warning: 'bg-slate-50 border-slate-200',
+    info: 'bg-slate-50 border-slate-200',
   };
 
   const textColors = {
-    success: 'text-green-800',
-    error: 'text-red-800',
-    warning: 'text-yellow-800',
-    info: 'text-blue-800',
+    success: 'text-slate-700',
+    error: 'text-slate-700',
+    warning: 'text-slate-700',
+    info: 'text-slate-700',
   };
 
   const titleColors = {
-    success: 'text-green-900',
-    error: 'text-red-900',
-    warning: 'text-yellow-900',
-    info: 'text-blue-900',
+    success: 'text-slate-900',
+    error: 'text-slate-900',
+    warning: 'text-slate-900',
+    info: 'text-slate-900',
   };
 
   return (
