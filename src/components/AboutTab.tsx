@@ -30,7 +30,7 @@ export function AboutTab() {
                             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">TauriAge</h3>
                             <div className="flex items-center gap-2 mt-1">
                                 <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-medium rounded-full border border-slate-200 dark:border-slate-700">
-                                    v0.1.0
+                                    v0.2.0
                                 </span>
                                 <span className="px-2 py-0.5 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full border border-green-100 dark:border-green-800">
                                     Stable
