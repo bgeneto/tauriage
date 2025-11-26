@@ -205,8 +205,8 @@ export function EncryptionTab() {
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">File Encryption</h2>
-        <p className="text-slate-600">Drag and drop a file or browse to encrypt it.</p>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">File Encryption</h2>
+        <p className="text-slate-600 dark:text-slate-400">Drag and drop a file or browse to encrypt it.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -216,10 +216,10 @@ export function EncryptionTab() {
             className={`
               border-2 border-dashed rounded-lg p-12 text-center transition-all
               ${isDragging
-                ? 'border-slate-500 bg-slate-100'
+                ? 'border-slate-500 bg-slate-100 dark:bg-slate-800 dark:border-slate-400'
                 : encryption.selectedFile
-                  ? 'border-slate-400 bg-slate-50'
-                  : 'border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50'
+                  ? 'border-slate-400 bg-slate-50 dark:bg-slate-900 dark:border-slate-600'
+                  : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'
               }
             `}
           >
@@ -227,21 +227,20 @@ export function EncryptionTab() {
               <div className="space-y-4">
                 <div className="text-5xl">📄</div>
                 <div>
-                  <div className="font-semibold text-slate-900 mb-1">Selected File:</div>
-                  <div className="text-sm text-slate-600 break-all px-4">{getFileName(encryption.selectedFile)}</div>
+                  <div className="font-semibold text-slate-900 dark:text-white mb-1">Selected File:</div>
+                  <div className="text-sm text-slate-600 dark:text-slate-400 break-all px-4">{getFileName(encryption.selectedFile)}</div>
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={handleBrowseFile}
-                    className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-medium transition-colors"
+                    className="flex-1 px-4 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white rounded-lg font-medium transition-colors"
                     style={{ color: '#ffffff' }}
                   >
                     Choose Different File
                   </button>
                   <button
                     onClick={() => setEncryptionSelectedFile(null)}
-                    className="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg font-medium transition-colors"
-                    style={{ color: '#334155' }}
+                    className="px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg font-medium transition-colors"
                   >
                     Remove
                   </button>
@@ -251,13 +250,13 @@ export function EncryptionTab() {
               <div className="space-y-4">
                 <div className="text-6xl">{isDragging ? '⬇️' : '📁'}</div>
                 <div>
-                  <div className="text-lg font-semibold text-slate-900 mb-2">
+                  <div className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
                     {isDragging ? 'Drop file here' : 'Drag & Drop File'}
                   </div>
-                  <div className="text-sm text-slate-500 mb-4">or</div>
+                  <div className="text-sm text-slate-500 dark:text-slate-400 mb-4">or</div>
                   <button
                     onClick={handleBrowseFile}
-                    className="px-6 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-medium transition-colors"
+                    className="px-6 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white rounded-lg font-medium transition-colors"
                     style={{ color: '#ffffff' }}
                   >
                     Browse Files
@@ -268,15 +267,14 @@ export function EncryptionTab() {
           </div>
 
           {/* Output Location */}
-          <div className="space-y-3 bg-white rounded-lg p-6 border border-slate-200">
-            <h3 className="text-lg font-semibold text-slate-900">💾 Output Location</h3>
-            <div className={`px-3 py-2 rounded text-sm truncate border ${encryption.outputFile ? 'bg-slate-50 border-slate-300 text-slate-700 font-medium' : 'bg-white border-slate-200 text-slate-500'}`}>
+          <div className="space-y-3 bg-white dark:bg-slate-900 rounded-lg p-6 border border-slate-200 dark:border-slate-800 transition-colors duration-200">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">💾 Output Location</h3>
+            <div className={`px-3 py-2 rounded text-sm truncate border ${encryption.outputFile ? 'bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium' : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-500'}`}>
               {encryption.outputFile || 'Choose where to save encrypted file...'}
             </div>
             <button
               onClick={handlePickOutputFile}
-              className="w-full px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg font-medium transition-colors"
-              style={{ color: '#334155' }}
+              className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg font-medium transition-colors"
             >
               Choose Location
             </button>
@@ -285,18 +283,18 @@ export function EncryptionTab() {
 
         {/* Recipients Section */}
         <div className="space-y-4">
-          <div className="bg-white rounded-lg p-6 border border-slate-200 space-y-4">
-            <h3 className="text-lg font-semibold text-slate-900">🔑 Add Recipients</h3>
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-slate-200 dark:border-slate-800 space-y-4 transition-colors duration-200">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">🔑 Add Recipients</h3>
 
             {storedKeys.length > 0 && (
               <div className="space-y-2">
-                <div className="text-sm font-medium text-slate-700">Your saved keys:</div>
+                <div className="text-sm font-medium text-slate-700 dark:text-slate-300">Your saved keys:</div>
                 <div className="space-y-1 max-h-32 overflow-y-auto">
                   {storedKeys.map(key => (
                     <button
                       key={key.id}
                       onClick={() => handleAddStoredKeyAsRecipient(key)}
-                      className="w-full text-left px-3 py-2 text-sm bg-white hover:bg-slate-50 text-slate-700 rounded border border-slate-200 hover:border-slate-300 transition-colors"
+                      className="w-full text-left px-3 py-2 text-sm bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
                     >
                       + {key.name}
                     </button>
@@ -306,7 +304,7 @@ export function EncryptionTab() {
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">Paste a public age or ssh key:</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Paste a public age or ssh key:</label>
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -314,11 +312,11 @@ export function EncryptionTab() {
                   onChange={e => setRecipientInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="age1xyz..."
-                  className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                  className="flex-1 px-3 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500 dark:focus:ring-slate-400 transition-colors"
                 />
                 <button
                   onClick={handleAddRecipient}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded font-medium transition-colors"
+                  className="px-4 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white rounded font-medium transition-colors"
                   style={{ color: '#ffffff' }}
                 >
                   Add
@@ -326,8 +324,7 @@ export function EncryptionTab() {
               </div>
               <button
                 onClick={handlePasteRecipientFromClipboard}
-                className="w-full px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded font-medium transition-colors"
-                style={{ color: '#334155' }}
+                className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded font-medium transition-colors"
               >
                 📋 Paste from Clipboard
               </button>
@@ -335,36 +332,36 @@ export function EncryptionTab() {
           </div>
 
           {/* Armor Option */}
-          <div className="bg-white rounded-lg p-4 border border-slate-200">
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-800 transition-colors duration-200">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={encryption.useArmor}
                 onChange={(e) => setEncryptionUseArmor(e.target.checked)}
-                className="w-4 h-4 text-slate-900 bg-white border-slate-300 rounded focus:ring-2 focus:ring-slate-500"
+                className="w-4 h-4 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-slate-500 dark:focus:ring-slate-400"
               />
-              <span className="text-sm font-medium text-slate-700">
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 🛡️ Use Armor (ASCII encoding)
               </span>
             </label>
-            <p className="text-xs text-slate-500 mt-2 ml-7">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 ml-7">
               Encodes encrypted output in ASCII text format instead of binary. Useful for text-based communication.
             </p>
           </div>
 
           {/* Recipients List */}
           {encryption.recipients.length > 0 && (
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-              <div className="font-semibold text-slate-900 mb-3">
+            <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4 transition-colors duration-200">
+              <div className="font-semibold text-slate-900 dark:text-white mb-3">
                 Recipients ({encryption.recipients.length})
               </div>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {encryption.recipients.map((recipient, index) => (
-                  <div key={index} className="flex items-center gap-2 bg-white rounded p-2 text-sm">
-                    <span className="flex-1 font-mono text-slate-700 truncate text-xs">{recipient}</span>
+                  <div key={index} className="flex items-center gap-2 bg-white dark:bg-slate-950 rounded p-2 text-sm transition-colors">
+                    <span className="flex-1 font-mono text-slate-700 dark:text-slate-300 truncate text-xs">{recipient}</span>
                     <button
                       onClick={() => removeEncryptionRecipient(index)}
-                      className="px-2 py-1 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors text-xs font-medium"
+                      className="px-2 py-1 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors text-xs font-medium"
                     >
                       Remove
                     </button>
@@ -380,7 +377,7 @@ export function EncryptionTab() {
       <button
         onClick={handleEncrypt}
         disabled={isEncrypting}
-        className="w-full px-6 py-4 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-all shadow-sm hover:shadow-md text-lg"
+        className="w-full px-6 py-4 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 disabled:bg-slate-300 dark:disabled:bg-slate-800/50 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-all shadow-sm hover:shadow-md text-lg"
         style={{ color: '#ffffff' }}
       >
         {isEncrypting ? '⏳ Encrypting...' : '🔒 Encrypt File'}

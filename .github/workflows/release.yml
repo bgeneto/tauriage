@@ -100,6 +100,8 @@ jobs:
     needs: [build-windows, build-macos, build-linux]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -131,10 +133,14 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            release-assets/windows/*
-            release-assets/macos-x86_64/*
-            release-assets/macos-arm64/*
-            release-assets/linux/*
+            release-assets/windows/**/*.exe
+            release-assets/windows/**/*.msi
+            release-assets/macos-x86_64/**/*.dmg
+            release-assets/macos-x86_64/**/*.app
+            release-assets/macos-arm64/**/*.dmg
+            release-assets/macos-arm64/**/*.app
+            release-assets/linux/**/*.deb
+            release-assets/linux/**/*.AppImage
           draft: false
           prerelease: false
           generate_release_notes: true

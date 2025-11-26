@@ -159,10 +159,10 @@ export function KeyManagementTab() {
   const confirmDelete = async (index: number) => {
     removeStoredKey(index);
     setDeleteConfirm(null);
-    
+
     // Get the updated keys list after deletion
     const updatedKeys = storedKeys.filter((_, i) => i !== index);
-    
+
     // Save the updated keys to encrypted storage
     if (autoPassphrase) {
       try {
@@ -265,19 +265,19 @@ export function KeyManagementTab() {
     setIsImporting(true);
     try {
       const importedKeys = await importKeys(importPassphrase, importFilePath);
-      
+
       // Merge with existing keys (skip duplicates by id)
       const existingIds = new Set(storedKeys.map(k => k.id));
       const newKeys = importedKeys.filter(k => !existingIds.has(k.id));
       const mergedKeys = [...storedKeys, ...newKeys];
-      
+
       setStoredKeys(mergedKeys);
-      
+
       // Save merged keys to storage
       if (autoPassphrase) {
         await saveKeyStorage(autoPassphrase, mergedKeys);
       }
-      
+
       showToast('success', 'Keys imported!', `${newKeys.length} new key(s) added (${importedKeys.length - newKeys.length} duplicate(s) skipped)`);
       setShowImportDialog(false);
     } catch (err) {
@@ -301,12 +301,12 @@ export function KeyManagementTab() {
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">Key Management</h2>
-        <p className="text-slate-600">Generate age key pairs and manage your stored keys.</p>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Key Management</h2>
+        <p className="text-slate-600 dark:text-slate-400">Generate age key pairs and manage your stored keys.</p>
       </div>
 
       {error && (
-        <div className="bg-slate-50 border border-slate-200 text-slate-800 px-4 py-3 rounded-lg flex items-start gap-3">
+        <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 px-4 py-3 rounded-lg flex items-start gap-3">
           <span className="text-xl">⚠️</span>
           <div>{error}</div>
         </div>
@@ -314,16 +314,16 @@ export function KeyManagementTab() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Generate New Keys */}
-        <div className="bg-white rounded-lg p-6 border border-slate-200 flex flex-col">
+        <div className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-slate-200 dark:border-slate-800 flex flex-col transition-colors duration-200">
           <div className="grow">
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">🔑 Generate New Keys</h3>
-            <p className="text-sm text-slate-600">Create a new age key pair for encryption and decryption.</p>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">🔑 Generate New Keys</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400">Create a new age key pair for encryption and decryption.</p>
           </div>
           <button
             onClick={handleGenerateKeys}
             disabled={isGenerating}
             style={{ color: '#ffffff' }}
-            className="mt-6 w-full px-6 py-3 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-lg font-semibold transition-colors text-base shadow-sm hover:shadow-md disabled:shadow-none flex items-center justify-center whitespace-nowrap"
+            className="mt-6 w-full px-6 py-3 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 disabled:bg-slate-300 dark:disabled:bg-slate-800/50 disabled:cursor-not-allowed rounded-lg font-semibold transition-colors text-base shadow-sm hover:shadow-md disabled:shadow-none flex items-center justify-center whitespace-nowrap"
           >
             {isGenerating ? '⏳ Generating...' : '🔑 Generate New Keys'}
           </button>
@@ -332,32 +332,32 @@ export function KeyManagementTab() {
 
       {/* Generated Key Display */}
       {generatedKey && (
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Generated Key Pair</h3>
+        <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6 transition-colors duration-200">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Generated Key Pair</h3>
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Key Name</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Key Name</label>
               <input
                 type="text"
                 value={keyName}
                 onChange={(e) => setKeyName(e.target.value)}
                 placeholder="e.g., My Personal Key, Work Key..."
-                className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500 dark:focus:ring-slate-400 transition-colors"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Public Key</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Public Key</label>
               <div className="flex gap-2">
                 <textarea
                   value={editedPublicKey}
                   onChange={(e) => setEditedPublicKey(e.target.value)}
-                  className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded font-mono text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                  className="flex-1 px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded font-mono text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500 dark:focus:ring-slate-400 transition-colors"
                   rows={3}
                 />
                 <button
                   onClick={() => copyToClipboard(editedPublicKey)}
-                  className="px-3 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded transition-colors text-sm font-medium"
+                  className="px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded transition-colors text-sm font-medium"
                 >
                   Copy
                 </button>
@@ -365,22 +365,22 @@ export function KeyManagementTab() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Private Key</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Private Key</label>
               <div className="flex gap-2">
                 <textarea
                   value={editedPrivateKey}
                   onChange={(e) => setEditedPrivateKey(e.target.value)}
-                  className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded font-mono text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                  className="flex-1 px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded font-mono text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500 dark:focus:ring-slate-400 transition-colors"
                   rows={4}
                 />
                 <button
                   onClick={() => copyToClipboard(editedPrivateKey)}
-                  className="px-3 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded transition-colors text-sm font-medium"
+                  className="px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded transition-colors text-sm font-medium"
                 >
                   Copy
                 </button>
               </div>
-              <div className="mt-2 p-2 bg-slate-100 border border-slate-200 rounded text-slate-600 text-xs">
+              <div className="mt-2 p-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-400 text-xs transition-colors">
                 🔒 Keep this private key secure! Never share it.
               </div>
             </div>
@@ -388,7 +388,7 @@ export function KeyManagementTab() {
             <button
               onClick={handleStoreGeneratedKey}
               disabled={!keyName.trim()}
-              className="w-full px-4 py-2 bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+              className="w-full px-4 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 disabled:bg-slate-300 dark:disabled:bg-slate-800/50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
             >
               💾 Store This Key
             </button>
@@ -397,9 +397,9 @@ export function KeyManagementTab() {
       )}
 
       {/* Key Storage Management */}
-      <div className="bg-white rounded-lg p-6 border border-slate-200 space-y-4">
+      <div className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-slate-200 dark:border-slate-800 space-y-4 transition-colors duration-200">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-slate-900">🗝️ Stored Key Pairs ({storedKeys.length})</h3>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">🗝️ Stored Key Pairs ({storedKeys.length})</h3>
           <div className="flex gap-2">
             <button
               onClick={handleImportClick}
@@ -410,7 +410,7 @@ export function KeyManagementTab() {
             <button
               onClick={handleExportClick}
               disabled={storedKeys.length === 0}
-              className="px-3 py-1 bg-slate-700 hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded text-xs font-medium transition-colors"
+              className="px-3 py-1 bg-slate-700 hover:bg-slate-800 disabled:bg-slate-300 dark:disabled:bg-slate-700/50 disabled:cursor-not-allowed text-white rounded text-xs font-medium transition-colors"
             >
               📤 Export
             </button>
@@ -426,24 +426,24 @@ export function KeyManagementTab() {
         </div>
 
         {isLoadingKeys ? (
-          <p className="text-slate-500 text-sm italic py-4">Loading your keypairs...</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm italic py-4">Loading your keypairs...</p>
         ) : storedKeys.length === 0 ? (
-          <p className="text-slate-500 text-sm italic py-4">No keys stored yet. Generate and store keys to use them in encryption and decryption.</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm italic py-4">No keys stored yet. Generate and store keys to use them in encryption and decryption.</p>
         ) : (
           <div className="space-y-2">
             {storedKeys.map((key, index) => {
               const isExpanded = expandedKeyId === key.id;
               return (
-                <div key={key.id} className="border border-slate-200 rounded-lg overflow-hidden">
+                <div key={key.id} className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden transition-colors">
                   {/* Accordion Header */}
                   <button
                     onClick={() => setExpandedKeyId(isExpanded ? null : key.id)}
-                    className="w-full px-4 py-3 bg-slate-50 hover:bg-slate-100 flex items-center justify-between transition-colors text-left"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-between transition-colors text-left"
                   >
                     <div className="flex items-center gap-3 flex-1">
-                      <span className="text-lg">{isExpanded ? '▼' : '▶'}</span>
-                      <h4 className="font-semibold text-slate-900">{key.name}</h4>
-                      <span className="text-xs text-slate-500 ml-auto">
+                      <span className="text-lg text-slate-900 dark:text-white">{isExpanded ? '▼' : '▶'}</span>
+                      <h4 className="font-semibold text-slate-900 dark:text-white">{key.name}</h4>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 ml-auto">
                         {key.privateKey ? '🔐 Full' : '🔒 Public only'}
                       </span>
                     </div>
@@ -451,30 +451,30 @@ export function KeyManagementTab() {
 
                   {/* Accordion Content */}
                   {isExpanded && (
-                    <div className="px-4 py-4 bg-slate-50 border-t border-slate-200 space-y-3">
+                    <div className="px-4 py-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 space-y-3 transition-colors">
                       {/* Delete Button - Always visible in expanded view */}
                       <div className="flex justify-end">
                         <button
                           onClick={() => handleDeleteKey(index)}
-                          className="px-3 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-xs font-medium transition-colors"
+                          className="px-3 py-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded text-xs font-medium transition-colors"
                         >
                           🗑️ Delete
                         </button>
                       </div>
 
                       {deleteConfirm === key.id && (
-                        <div className="bg-slate-100 border border-slate-200 rounded p-3 flex items-center justify-between gap-2">
-                          <span className="text-sm text-slate-700">Delete this key pair permanently?</span>
+                        <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-3 flex items-center justify-between gap-2 transition-colors">
+                          <span className="text-sm text-slate-700 dark:text-slate-300">Delete this key pair permanently?</span>
                           <div className="flex gap-2">
                             <button
                               onClick={() => confirmDelete(index)}
-                              className="px-3 py-1 bg-slate-800 hover:bg-slate-900 text-white rounded text-xs font-medium"
+                              className="px-3 py-1 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white rounded text-xs font-medium transition-colors"
                             >
                               Delete
                             </button>
                             <button
                               onClick={() => setDeleteConfirm(null)}
-                              className="px-3 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-xs font-medium"
+                              className="px-3 py-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded text-xs font-medium transition-colors"
                             >
                               Cancel
                             </button>
@@ -484,25 +484,25 @@ export function KeyManagementTab() {
 
                       {/* Public Key */}
                       <div>
-                        <div className="text-xs font-medium text-slate-600 mb-1">Public Key</div>
+                        <div className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Public Key</div>
                         <div className="flex gap-2">
                           <textarea
                             readOnly
                             value={key.publicKey}
-                            className="flex-1 px-2 py-1 bg-white border border-slate-300 rounded font-mono text-xs text-slate-700"
+                            className="flex-1 px-2 py-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded font-mono text-xs text-slate-700 dark:text-slate-300 transition-colors"
                             rows={2}
                           />
                           <div className="flex flex-col gap-1">
                             <button
                               onClick={() => copyToClipboard(key.publicKey)}
-                              className="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-xs font-medium transition-colors whitespace-nowrap"
+                              className="px-2 py-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded text-xs font-medium transition-colors whitespace-nowrap"
                               title="Copy to clipboard"
                             >
                               Copy
                             </button>
                             <button
                               onClick={() => handleUsePublicKey(key.publicKey, key.name)}
-                              className="px-2 py-1 bg-slate-800 hover:bg-slate-900 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
+                              className="px-2 py-1 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
                               title="Add as encryption recipient"
                             >
                               Use
@@ -514,25 +514,25 @@ export function KeyManagementTab() {
                       {/* Private Key */}
                       {key.privateKey && (
                         <div>
-                          <div className="text-xs font-medium text-slate-600 mb-1">Private Key</div>
+                          <div className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Private Key</div>
                           <div className="flex gap-2">
                             <textarea
                               readOnly
                               value={key.privateKey}
-                              className="flex-1 px-2 py-1 bg-white border border-slate-300 rounded font-mono text-xs text-slate-700"
+                              className="flex-1 px-2 py-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded font-mono text-xs text-slate-700 dark:text-slate-300 transition-colors"
                               rows={3}
                             />
                             <div className="flex flex-col gap-1">
                               <button
                                 onClick={() => copyToClipboard(key.privateKey!)}
-                                className="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-xs font-medium transition-colors whitespace-nowrap"
+                                className="px-2 py-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded text-xs font-medium transition-colors whitespace-nowrap"
                                 title="Copy to clipboard"
                               >
                                 Copy
                               </button>
                               <button
                                 onClick={() => handleUsePrivateKey(key.privateKey!, key.name)}
-                                className="px-2 py-1 bg-slate-800 hover:bg-slate-900 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
+                                className="px-2 py-1 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white rounded text-xs font-medium transition-colors whitespace-nowrap"
                                 title="Load for decryption"
                               >
                                 Use
@@ -543,7 +543,7 @@ export function KeyManagementTab() {
                       )}
 
                       {key.comment && (
-                        <p className="text-xs text-slate-500 italic">{key.comment}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 italic">{key.comment}</p>
                       )}
                     </div>
                   )}
@@ -557,43 +557,43 @@ export function KeyManagementTab() {
       {/* Export Dialog */}
       {showExportDialog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">📤 Export Keys</h3>
-            <p className="text-sm text-slate-600 mb-4">
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-6 w-full max-w-md mx-4 shadow-xl border border-slate-200 dark:border-slate-800 transition-colors">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">📤 Export Keys</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               Enter a passphrase to protect your exported keys. You will need this passphrase to import the keys on another machine.
             </p>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Passphrase</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Passphrase</label>
                 <input
                   type="password"
                   value={exportPassphrase}
                   onChange={(e) => setExportPassphrase(e.target.value)}
                   placeholder="Enter a passphrase (min 4 chars)"
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500 dark:focus:ring-slate-400 transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Confirm Passphrase</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Confirm Passphrase</label>
                 <input
                   type="password"
                   value={exportPassphraseConfirm}
                   onChange={(e) => setExportPassphraseConfirm(e.target.value)}
                   placeholder="Confirm passphrase"
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500 dark:focus:ring-slate-400 transition-colors"
                 />
               </div>
               <div className="flex gap-2 justify-end mt-6">
                 <button
                   onClick={() => setShowExportDialog(false)}
-                  className="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg font-medium transition-colors"
+                  className="px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg font-medium transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleExportConfirm}
                   disabled={isExporting || exportPassphrase.length < 4 || exportPassphrase !== exportPassphraseConfirm}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+                  className="px-4 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 disabled:bg-slate-300 dark:disabled:bg-slate-800/50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
                 >
                   {isExporting ? '⏳ Exporting...' : '📤 Export'}
                 </button>
@@ -606,36 +606,36 @@ export function KeyManagementTab() {
       {/* Import Dialog */}
       {showImportDialog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">📥 Import Keys</h3>
-            <p className="text-sm text-slate-600 mb-2">
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-6 w-full max-w-md mx-4 shadow-xl border border-slate-200 dark:border-slate-800 transition-colors">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">📥 Import Keys</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
               Selected file: <span className="font-mono text-xs">{importFilePath.split(/[/\\]/).pop()}</span>
             </p>
-            <p className="text-sm text-slate-600 mb-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               Enter the passphrase that was used when exporting these keys.
             </p>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Passphrase</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Passphrase</label>
                 <input
                   type="password"
                   value={importPassphrase}
                   onChange={(e) => setImportPassphrase(e.target.value)}
                   placeholder="Enter export passphrase"
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500 dark:focus:ring-slate-400 transition-colors"
                 />
               </div>
               <div className="flex gap-2 justify-end mt-6">
                 <button
                   onClick={() => setShowImportDialog(false)}
-                  className="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg font-medium transition-colors"
+                  className="px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg font-medium transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleImportConfirm}
                   disabled={isImporting || importPassphrase.length < 4}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+                  className="px-4 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 disabled:bg-slate-300 dark:disabled:bg-slate-800/50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
                 >
                   {isImporting ? '⏳ Importing...' : '📥 Import'}
                 </button>

@@ -32,30 +32,30 @@ const Toast: React.FC<ToastProps> = ({ toast, onClose, duration = 5000 }) => {
   };
 
   const bgColors = {
-    success: 'bg-slate-50 border-slate-200',
-    error: 'bg-slate-50 border-slate-200',
-    warning: 'bg-slate-50 border-slate-200',
-    info: 'bg-slate-50 border-slate-200',
+    success: 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700',
+    error: 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700',
+    warning: 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700',
+    info: 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700',
   };
 
   const textColors = {
-    success: 'text-slate-700',
-    error: 'text-slate-700',
-    warning: 'text-slate-700',
-    info: 'text-slate-700',
+    success: 'text-slate-700 dark:text-slate-300',
+    error: 'text-slate-700 dark:text-slate-300',
+    warning: 'text-slate-700 dark:text-slate-300',
+    info: 'text-slate-700 dark:text-slate-300',
   };
 
   const titleColors = {
-    success: 'text-slate-900',
-    error: 'text-slate-900',
-    warning: 'text-slate-900',
-    info: 'text-slate-900',
+    success: 'text-slate-900 dark:text-white',
+    error: 'text-slate-900 dark:text-white',
+    warning: 'text-slate-900 dark:text-white',
+    info: 'text-slate-900 dark:text-white',
   };
 
   return (
     <div
       className={`
-        border rounded-lg p-4 flex gap-3 items-start animate-in fade-in slide-in-from-top-2 duration-300
+        border rounded-lg p-4 flex gap-3 items-start animate-in fade-in slide-in-from-top-2 duration-300 shadow-lg
         ${bgColors[toast.type]} ${textColors[toast.type]}
       `}
     >
