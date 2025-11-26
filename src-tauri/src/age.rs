@@ -149,9 +149,15 @@ fn parse_age_keygen_output(output: &str) -> Result<AgeKeyPair, String> {
     })
 }
 
-pub async fn encrypt_file(input: &str, output: &str, recipients: &[String]) -> Result<(), String> {
+pub async fn encrypt_file(input: &str, output: &str, recipients: &[String], use_armor: bool) -> Result<(), String> {
     let exe_path = get_bundled_exe_path("age")?;
     let mut cmd = Command::new(&exe_path);
+    
+    // Add armor flag if requested
+    if use_armor {
+        cmd.arg("--armor");
+    }
+    
     cmd.arg("-o").arg(output);
 
     for recipient in recipients {

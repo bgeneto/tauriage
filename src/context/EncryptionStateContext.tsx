@@ -5,6 +5,7 @@ interface EncryptionState {
   selectedFile: string | null;
   outputFile: string;
   recipients: string[];
+  useArmor: boolean;
 }
 
 interface DecryptionState {
@@ -27,6 +28,7 @@ interface EncryptionContextType {
   setEncryptionRecipients: (recipients: string[]) => void;
   addEncryptionRecipient: (recipient: string) => void;
   removeEncryptionRecipient: (index: number) => void;
+  setEncryptionUseArmor: (useArmor: boolean) => void;
   clearEncryptionState: () => void;
 
   decryption: DecryptionState;
@@ -52,6 +54,7 @@ export function EncryptionStateProvider({ children }: { children: ReactNode }) {
     selectedFile: null,
     outputFile: '',
     recipients: [],
+    useArmor: false,
   });
 
   const [decryption, setDecryption] = useState<DecryptionState>({
@@ -93,11 +96,19 @@ export function EncryptionStateProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  const setEncryptionUseArmorState = (useArmor: boolean) => {
+    setEncryption(prev => ({
+      ...prev,
+      useArmor,
+    }));
+  };
+
   const clearEncryptionState = () => {
     setEncryption({
       selectedFile: null,
       outputFile: '',
       recipients: [],
+      useArmor: false,
     });
   };
 
@@ -169,6 +180,7 @@ export function EncryptionStateProvider({ children }: { children: ReactNode }) {
         setEncryptionRecipients,
         addEncryptionRecipient,
         removeEncryptionRecipient,
+        setEncryptionUseArmor: setEncryptionUseArmorState,
         clearEncryptionState,
         decryption,
         setDecryptionSelectedFile,

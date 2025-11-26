@@ -220,3 +220,115 @@ pub fn get_or_create_passphrase() -> Result<String, String> {
 
     Ok(passphrase)
 }
+
+// Magic bytes for export file format: "TAKI" = TauriAge Key Import
+const EXPORT_MAGIC: &[u8; 4] = b"TAKI";
+const EXPORT_VERSION: u32 = 1;
+
+/// Export keys to a file with a user-provided passphrase
+/// File format: [4 bytes magic "TAKI"][4 bytes version][12 bytes nonce][encrypted data]
+pub fn export_keys_to_file(
+    passphrase: &str,
+    keys: &[StoredKey],
+    file_path: &str,
+) -> Result<(), String> {
+    use aes_gcm::{
+        aead::{Aead, AeadCore, KeyInit, OsRng},
+        Aes256Gcm, Key,
+    };
+    use pbkdf2::pbkdf2_hmac;
+    use sha2::Sha256;
+
+    if passphrase.len() < 4 {
+        return Err("Passphrase must be at least 4 characters".to_string());
+    }
+
+    // Create storage container
+    let storage = KeyStorage {
+        keys: keys.to_vec(),
+        version: EXPORT_VERSION,
+    };
+
+    // Serialize to JSON
+    let json_data =
+        serde_json::to_vec(&storage).map_err(|e| format!("Failed to serialize keys: {}", e))?;
+
+    // Derive key from passphrase using PBKDF2 with a different salt for exports
+    let mut key = [0u8; 32];
+    pbkdf2_hmac::<Sha256>(passphrase.as_bytes(), b"tauriage-export-salt", 100_000, &mut key);
+    let aes_key = Key::<Aes256Gcm>::from_slice(&key);
+
+    // Generate nonce
+    let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
+
+    // Encrypt the data
+    let cipher = Aes256Gcm::new(&aes_key);
+    let ciphertext = cipher
+        .encrypt(&nonce, json_data.as_ref())
+        .map_err(|e| format!("Encryption failed: {:?}", e))?;
+
+    // Build the export file: magic + version + nonce + ciphertext
+    let mut result = Vec::new();
+    result.extend_from_slice(EXPORT_MAGIC);
+    result.extend_from_slice(&EXPORT_VERSION.to_le_bytes());
+    result.extend_from_slice(&nonce);
+    result.extend(ciphertext);
+
+    fs::write(file_path, result)
+        .map_err(|e| format!("Failed to write export file: {}", e))?;
+
+    Ok(())
+}
+
+/// Import keys from an exported file using a user-provided passphrase
+pub fn import_keys_from_file(
+    passphrase: &str,
+    file_path: &str,
+) -> Result<Vec<StoredKey>, String> {
+    use aes_gcm::{
+        aead::{Aead, KeyInit},
+        Aes256Gcm, Key,
+    };
+    use pbkdf2::pbkdf2_hmac;
+    use sha2::Sha256;
+
+    let data = fs::read(file_path)
+        .map_err(|e| format!("Failed to read export file: {}", e))?;
+
+    // Minimum size: 4 (magic) + 4 (version) + 12 (nonce) + 16 (min ciphertext with tag)
+    if data.len() < 36 {
+        return Err("Export file is too small or corrupted".to_string());
+    }
+
+    // Verify magic bytes
+    if &data[0..4] != EXPORT_MAGIC {
+        return Err("Invalid export file format (wrong magic bytes)".to_string());
+    }
+
+    // Read version
+    let version = u32::from_le_bytes([data[4], data[5], data[6], data[7]]);
+    if version != EXPORT_VERSION {
+        return Err(format!("Unsupported export file version: {}", version));
+    }
+
+    // Extract nonce and ciphertext
+    let nonce_slice = &data[8..20];
+    let ciphertext = &data[20..];
+
+    // Derive key from passphrase
+    let mut key = [0u8; 32];
+    pbkdf2_hmac::<Sha256>(passphrase.as_bytes(), b"tauriage-export-salt", 100_000, &mut key);
+    let aes_key = Key::<Aes256Gcm>::from_slice(&key);
+
+    // Decrypt
+    let cipher = Aes256Gcm::new(&aes_key);
+    let decrypted_bytes = cipher
+        .decrypt(nonce_slice.into(), ciphertext)
+        .map_err(|_| "Decryption failed - incorrect passphrase or corrupted file".to_string())?;
+
+    // Parse JSON
+    let storage: KeyStorage = serde_json::from_slice(&decrypted_bytes)
+        .map_err(|e| format!("Failed to parse decrypted data: {}", e))?;
+
+    Ok(storage.keys)
+}

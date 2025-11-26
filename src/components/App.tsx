@@ -77,9 +77,30 @@ function AppContent() {
       {/* Main Content with Sidebar */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar Navigation */}
-        <aside className="w-56 bg-white border-r border-slate-200 shadow-sm overflow-y-auto">
-          <nav className="p-4 space-y-2">
-            {tabs.map(tab => (
+        <aside className="w-56 bg-white border-r border-slate-200 shadow-sm flex flex-col">
+          <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
+            {tabs.filter(tab => tab.id !== 'about').map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 ${activeTab === tab.id
+                  ? 'bg-slate-100 text-slate-900 font-medium'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">{tab.icon}</span>
+                  <div className="min-w-0">
+                    <div className="font-semibold text-sm">{tab.label}</div>
+                    <div className="text-xs opacity-75 truncate">{tab.description}</div>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </nav>
+          {/* About Tab - Sticky to Bottom */}
+          <nav className="border-t border-slate-200 p-4">
+            {tabs.filter(tab => tab.id === 'about').map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}

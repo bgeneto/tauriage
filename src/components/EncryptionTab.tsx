@@ -23,6 +23,7 @@ export function EncryptionTab() {
     setEncryptionOutputFile,
     addEncryptionRecipient,
     removeEncryptionRecipient,
+    setEncryptionUseArmor,
     clearEncryptionState,
   } = useEncryptionState();
 
@@ -163,7 +164,7 @@ export function EncryptionTab() {
     setIsEncrypting(true);
 
     try {
-      const result = await encryptFile(encryption.selectedFile, encryption.outputFile, encryption.recipients);
+      const result = await encryptFile(encryption.selectedFile, encryption.outputFile, encryption.recipients, encryption.useArmor);
       clearEncryptionState();
       showToast('success', 'Encryption successful!', `File saved to ${result.outputFile}`);
     } catch (err) {
@@ -331,6 +332,24 @@ export function EncryptionTab() {
                 📋 Paste from Clipboard
               </button>
             </div>
+          </div>
+
+          {/* Armor Option */}
+          <div className="bg-white rounded-lg p-4 border border-slate-200">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={encryption.useArmor}
+                onChange={(e) => setEncryptionUseArmor(e.target.checked)}
+                className="w-4 h-4 text-slate-900 bg-white border-slate-300 rounded focus:ring-2 focus:ring-slate-500"
+              />
+              <span className="text-sm font-medium text-slate-700">
+                🛡️ Use Armor (ASCII encoding)
+              </span>
+            </label>
+            <p className="text-xs text-slate-500 mt-2 ml-7">
+              Encodes encrypted output in ASCII text format instead of binary. Useful for text-based communication.
+            </p>
           </div>
 
           {/* Recipients List */}

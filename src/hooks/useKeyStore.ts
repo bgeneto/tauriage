@@ -53,11 +53,29 @@ export const useKeyStore = () => {
     }
   };
 
+  const exportKeys = async (passphrase: string, keys: StoredKey[], filePath: string): Promise<void> => {
+    try {
+      await invoke('export_keys_cmd', { passphrase, keys, filePath });
+    } catch (error) {
+      throw new Error(`Failed to export keys: ${error}`);
+    }
+  };
+
+  const importKeys = async (passphrase: string, filePath: string): Promise<StoredKey[]> => {
+    try {
+      return await invoke('import_keys_cmd', { passphrase, filePath });
+    } catch (error) {
+      throw new Error(`Failed to import keys: ${error}`);
+    }
+  };
+
   return {
     getDefaultKeyStoragePath,
     keyStorageExists,
     loadKeyStorage,
     saveKeyStorage,
     createStoredKey,
+    exportKeys,
+    importKeys,
   };
 };

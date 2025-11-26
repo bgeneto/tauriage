@@ -22,13 +22,15 @@ export const useAgeOperations = () => {
   const encryptFile = async (
     inputFile: string,
     outputFile: string,
-    recipients: string[]
+    recipients: string[],
+    useArmor: boolean = false
   ): Promise<EncryptionResult> => {
     try {
       return await invoke('encrypt_file_cmd', {
         inputFile,
         outputFile,
         recipients,
+        useArmor,
       });
     } catch (error) {
       throw new Error(`Failed to encrypt file: ${error}`);

@@ -25,6 +25,8 @@ pub fn run() {
             commands::save_key_storage_cmd,
             commands::create_stored_key_cmd,
             commands::get_or_create_passphrase_cmd,
+            commands::export_keys_cmd,
+            commands::import_keys_cmd,
             commands::get_user_home_directory,
             commands::get_platform,
             commands::list_directory_contents

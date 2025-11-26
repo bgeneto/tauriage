@@ -1,5 +1,5 @@
 use crate::age::{AgeKeyPair, EncryptionResult, DecryptionResult, generate_keypair, encrypt_file, decrypt_file, derive_public_from_ssh};
-use crate::key_storage::{StoredKey, create_stored_key, save_key_storage, load_key_storage, key_storage_exists, get_default_key_storage_path, get_or_create_passphrase};
+use crate::key_storage::{StoredKey, create_stored_key, save_key_storage, load_key_storage, key_storage_exists, get_default_key_storage_path, get_or_create_passphrase, export_keys_to_file, import_keys_from_file};
 use std::sync::Mutex;
 
 // For simplicity, we'll store keys in memory for now
@@ -18,9 +18,10 @@ pub async fn generate_age_keys(comment: Option<String>) -> Result<AgeKeyPair, St
 pub async fn encrypt_file_cmd(
     input_file: String,
     output_file: String,
-    recipients: Vec<String>
+    recipients: Vec<String>,
+    use_armor: bool
 ) -> Result<EncryptionResult, String> {
-    encrypt_file(&input_file, &output_file, &recipients).await?;
+    encrypt_file(&input_file, &output_file, &recipients, use_armor).await?;
 
     Ok(EncryptionResult {
         success: true,
@@ -96,6 +97,16 @@ pub fn create_stored_key_cmd(
     comment: Option<String>
 ) -> Result<StoredKey, String> {
     Ok(create_stored_key(name, public_key, private_key, comment))
+}
+
+#[tauri::command]
+pub fn export_keys_cmd(passphrase: String, keys: Vec<StoredKey>, file_path: String) -> Result<(), String> {
+    export_keys_to_file(&passphrase, &keys, &file_path)
+}
+
+#[tauri::command]
+pub fn import_keys_cmd(passphrase: String, file_path: String) -> Result<Vec<StoredKey>, String> {
+    import_keys_from_file(&passphrase, &file_path)
 }
 
 #[tauri::command]

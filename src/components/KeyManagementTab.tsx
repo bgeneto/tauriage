@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { save, open } from '@tauri-apps/plugin-dialog';
 import { useAgeOperations } from '../hooks/useAge';
 import { useKeyStore } from '../hooks/useKeyStore';
 import Toast, { ToastMessage } from './Toast';
@@ -20,8 +21,18 @@ export function KeyManagementTab() {
   const [editedPublicKey, setEditedPublicKey] = useState<string>('');
   const [editedPrivateKey, setEditedPrivateKey] = useState<string>('');
 
+  // Export/Import dialog state
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [exportPassphrase, setExportPassphrase] = useState('');
+  const [exportPassphraseConfirm, setExportPassphraseConfirm] = useState('');
+  const [importPassphrase, setImportPassphrase] = useState('');
+  const [importFilePath, setImportFilePath] = useState('');
+  const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+
   const { generateKeys } = useAgeOperations();
-  const { saveKeyStorage, createStoredKey, loadKeyStorage, keyStorageExists } = useKeyStore();
+  const { saveKeyStorage, createStoredKey, loadKeyStorage, keyStorageExists, exportKeys, importKeys } = useKeyStore();
   const {
     keyManagement: { generatedKey, keyName, storedKeys },
     setGeneratedKey,
@@ -182,6 +193,100 @@ export function KeyManagementTab() {
     showToast('info', 'Keypairs locked', 'Your keypairs are no longer in memory');
   };
 
+  // Export handlers
+  const handleExportClick = () => {
+    if (storedKeys.length === 0) {
+      showToast('warning', 'No keys to export', 'Generate and store some keys first');
+      return;
+    }
+    setExportPassphrase('');
+    setExportPassphraseConfirm('');
+    setShowExportDialog(true);
+  };
+
+  const handleExportConfirm = async () => {
+    if (exportPassphrase.length < 4) {
+      showToast('warning', 'Passphrase too short', 'Use at least 4 characters');
+      return;
+    }
+    if (exportPassphrase !== exportPassphraseConfirm) {
+      showToast('error', 'Passphrases do not match');
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      const filePath = await save({
+        defaultPath: 'tauriage-keys-export.bin',
+        filters: [{ name: 'TauriAge Export', extensions: ['bin'] }],
+      });
+
+      if (filePath) {
+        await exportKeys(exportPassphrase, storedKeys, filePath);
+        showToast('success', 'Keys exported!', `${storedKeys.length} key(s) saved to ${filePath}`);
+        setShowExportDialog(false);
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Export failed';
+      showToast('error', 'Export failed', errorMsg);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Import handlers
+  const handleImportClick = async () => {
+    try {
+      const filePath = await open({
+        filters: [{ name: 'TauriAge Export', extensions: ['bin'] }],
+        multiple: false,
+      });
+
+      if (filePath && typeof filePath === 'string') {
+        setImportFilePath(filePath);
+        setImportPassphrase('');
+        setShowImportDialog(true);
+      }
+    } catch (err) {
+      showToast('error', 'Failed to select file');
+    }
+  };
+
+  const handleImportConfirm = async () => {
+    if (!importFilePath) {
+      showToast('error', 'No file selected');
+      return;
+    }
+    if (importPassphrase.length < 4) {
+      showToast('warning', 'Enter the passphrase used during export');
+      return;
+    }
+
+    setIsImporting(true);
+    try {
+      const importedKeys = await importKeys(importPassphrase, importFilePath);
+      
+      // Merge with existing keys (skip duplicates by id)
+      const existingIds = new Set(storedKeys.map(k => k.id));
+      const newKeys = importedKeys.filter(k => !existingIds.has(k.id));
+      const mergedKeys = [...storedKeys, ...newKeys];
+      
+      setStoredKeys(mergedKeys);
+      
+      // Save merged keys to storage
+      if (autoPassphrase) {
+        await saveKeyStorage(autoPassphrase, mergedKeys);
+      }
+      
+      showToast('success', 'Keys imported!', `${newKeys.length} new key(s) added (${importedKeys.length - newKeys.length} duplicate(s) skipped)`);
+      setShowImportDialog(false);
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Import failed';
+      showToast('error', 'Import failed', errorMsg);
+    } finally {
+      setIsImporting(false);
+    }
+  };
   return (
     <div className="space-y-6">
       {/* Toast Container */}
@@ -295,14 +400,29 @@ export function KeyManagementTab() {
       <div className="bg-white rounded-lg p-6 border border-slate-200 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-slate-900">🗝️ Stored Key Pairs ({storedKeys.length})</h3>
-          {isUnlocked && (
+          <div className="flex gap-2">
             <button
-              onClick={handleLock}
-              className="px-3 py-1 bg-slate-500 hover:bg-slate-600 text-white rounded text-xs font-medium transition-colors"
+              onClick={handleImportClick}
+              className="px-3 py-1 bg-slate-700 hover:bg-slate-800 text-white rounded text-xs font-medium transition-colors"
             >
-              🔒 Lock
+              📥 Import
             </button>
-          )}
+            <button
+              onClick={handleExportClick}
+              disabled={storedKeys.length === 0}
+              className="px-3 py-1 bg-slate-700 hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded text-xs font-medium transition-colors"
+            >
+              📤 Export
+            </button>
+            {isUnlocked && (
+              <button
+                onClick={handleLock}
+                className="px-3 py-1 bg-slate-500 hover:bg-slate-600 text-white rounded text-xs font-medium transition-colors"
+              >
+                🔒 Lock
+              </button>
+            )}
+          </div>
         </div>
 
         {isLoadingKeys ? (
@@ -433,6 +553,97 @@ export function KeyManagementTab() {
           </div>
         )}
       </div>
+
+      {/* Export Dialog */}
+      {showExportDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">📤 Export Keys</h3>
+            <p className="text-sm text-slate-600 mb-4">
+              Enter a passphrase to protect your exported keys. You will need this passphrase to import the keys on another machine.
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Passphrase</label>
+                <input
+                  type="password"
+                  value={exportPassphrase}
+                  onChange={(e) => setExportPassphrase(e.target.value)}
+                  placeholder="Enter a passphrase (min 4 chars)"
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Confirm Passphrase</label>
+                <input
+                  type="password"
+                  value={exportPassphraseConfirm}
+                  onChange={(e) => setExportPassphraseConfirm(e.target.value)}
+                  placeholder="Confirm passphrase"
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                />
+              </div>
+              <div className="flex gap-2 justify-end mt-6">
+                <button
+                  onClick={() => setShowExportDialog(false)}
+                  className="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleExportConfirm}
+                  disabled={isExporting || exportPassphrase.length < 4 || exportPassphrase !== exportPassphraseConfirm}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+                >
+                  {isExporting ? '⏳ Exporting...' : '📤 Export'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import Dialog */}
+      {showImportDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">📥 Import Keys</h3>
+            <p className="text-sm text-slate-600 mb-2">
+              Selected file: <span className="font-mono text-xs">{importFilePath.split(/[/\\]/).pop()}</span>
+            </p>
+            <p className="text-sm text-slate-600 mb-4">
+              Enter the passphrase that was used when exporting these keys.
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Passphrase</label>
+                <input
+                  type="password"
+                  value={importPassphrase}
+                  onChange={(e) => setImportPassphrase(e.target.value)}
+                  placeholder="Enter export passphrase"
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                />
+              </div>
+              <div className="flex gap-2 justify-end mt-6">
+                <button
+                  onClick={() => setShowImportDialog(false)}
+                  className="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleImportConfirm}
+                  disabled={isImporting || importPassphrase.length < 4}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+                >
+                  {isImporting ? '⏳ Importing...' : '📥 Import'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
