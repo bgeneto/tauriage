@@ -72,7 +72,7 @@ cargo build                          # Build debug binary
 ### File Operations
 - Use Tauri plugin APIs: `tauri_plugin_fs` for file access, `tauri_plugin_dialog` for file dialogs
 - Paths must be absolute; relative paths fail due to sandboxing
-- Clipboard integration (TODO in code): requires `tauri_plugin_clipboard_manager`
+- Clipboard integration: requires `tauri_plugin_clipboard_manager`
 
 ## When Adding Features
 

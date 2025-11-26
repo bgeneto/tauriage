@@ -17,6 +17,8 @@ export function KeyManagementTab() {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   const [autoPassphrase, setAutoPassphrase] = useState<string | null>(null);
+  const [editedPublicKey, setEditedPublicKey] = useState<string>('');
+  const [editedPrivateKey, setEditedPrivateKey] = useState<string>('');
 
   const { generateKeys } = useAgeOperations();
   const { saveKeyStorage, createStoredKey, loadKeyStorage, keyStorageExists } = useKeyStore();
@@ -84,6 +86,8 @@ export function KeyManagementTab() {
       const keyPair = await generateKeys(undefined);
       setGeneratedKey(keyPair);
       setKeyName('');
+      setEditedPublicKey(keyPair.publicKey);
+      setEditedPrivateKey(keyPair.privateKey);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to generate keys';
       console.error('Key generation error:', errorMsg);
@@ -109,8 +113,8 @@ export function KeyManagementTab() {
     try {
       const storedKey = await createStoredKey(
         keyName.trim(),
-        generatedKey.publicKey,
-        generatedKey.privateKey,
+        editedPublicKey,
+        editedPrivateKey,
         generatedKey.comment
       );
 
@@ -129,6 +133,8 @@ export function KeyManagementTab() {
 
       setGeneratedKey(null);
       setKeyName('');
+      setEditedPublicKey('');
+      setEditedPrivateKey('');
     } catch (error) {
       showToast('error', 'Failed to store key');
     }
@@ -139,10 +145,25 @@ export function KeyManagementTab() {
     setDeleteConfirm(keyToDelete.id);
   };
 
-  const confirmDelete = (index: number) => {
+  const confirmDelete = async (index: number) => {
     removeStoredKey(index);
     setDeleteConfirm(null);
-    showToast('success', 'Key deleted');
+    
+    // Get the updated keys list after deletion
+    const updatedKeys = storedKeys.filter((_, i) => i !== index);
+    
+    // Save the updated keys to encrypted storage
+    if (autoPassphrase) {
+      try {
+        await saveKeyStorage(autoPassphrase, updatedKeys);
+        showToast('success', 'Key deleted and saved');
+      } catch (err) {
+        showToast('error', 'Key deleted but failed to save', 'Changes may be lost on restart');
+        console.error('Failed to save after deletion:', err);
+      }
+    } else {
+      showToast('success', 'Key deleted');
+    }
   };
 
   const handleUsePublicKey = (publicKey: string, keyName: string) => {
@@ -224,13 +245,13 @@ export function KeyManagementTab() {
               <label className="block text-sm font-medium text-slate-700">Public Key</label>
               <div className="flex gap-2">
                 <textarea
-                  readOnly
-                  value={generatedKey.publicKey}
-                  className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded font-mono text-xs text-slate-700"
+                  value={editedPublicKey}
+                  onChange={(e) => setEditedPublicKey(e.target.value)}
+                  className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded font-mono text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500"
                   rows={3}
                 />
                 <button
-                  onClick={() => copyToClipboard(generatedKey.publicKey)}
+                  onClick={() => copyToClipboard(editedPublicKey)}
                   className="px-3 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded transition-colors text-sm font-medium"
                 >
                   Copy
@@ -242,13 +263,13 @@ export function KeyManagementTab() {
               <label className="block text-sm font-medium text-slate-700">Private Key</label>
               <div className="flex gap-2">
                 <textarea
-                  readOnly
-                  value={generatedKey.privateKey}
-                  className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded font-mono text-xs text-slate-700"
+                  value={editedPrivateKey}
+                  onChange={(e) => setEditedPrivateKey(e.target.value)}
+                  className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded font-mono text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500"
                   rows={4}
                 />
                 <button
-                  onClick={() => copyToClipboard(generatedKey.privateKey)}
+                  onClick={() => copyToClipboard(editedPrivateKey)}
                   className="px-3 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded transition-colors text-sm font-medium"
                 >
                   Copy
