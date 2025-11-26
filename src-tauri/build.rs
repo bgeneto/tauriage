@@ -60,7 +60,7 @@ fn copy_all_binaries(project_root: &Path, manifest_dir: &Path) {
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
-            let perms = fs::os::unix::fs::PermissionsExt::from_mode(0o755);
+            let perms = PermissionsExt::from_mode(0o755);
             fs::set_permissions(&age_dst, perms)
                 .expect("Failed to set executable permission on Linux age");
         }
@@ -78,7 +78,7 @@ fn copy_all_binaries(project_root: &Path, manifest_dir: &Path) {
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
-            let perms = fs::os::unix::fs::PermissionsExt::from_mode(0o755);
+            let perms = PermissionsExt::from_mode(0o755);
             fs::set_permissions(&age_keygen_dst, perms)
                 .expect("Failed to set executable permission on Linux age-keygen");
         }
