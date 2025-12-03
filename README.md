@@ -32,6 +32,8 @@
 
 ### Installation
 
+#### Install from sources
+
 1.  **Clone the repository:**
     ```bash
     git clone https://github.com/bgeneto/TauriAge.git
@@ -48,6 +50,18 @@
     cd src-tauri
     cargo check
     ```
+
+4. **Run dev version**
+    ```bash
+    npm run tauri dev
+    ```
+5. **Build install packages**
+   ```bash
+    npm run tauri build
+    ```
+#### Install from pre-build binaries
+
+See [releases](https://github.com/bgeneto/tauriage/releases) page.
 
 ### Running Locally
 
@@ -82,3 +96,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 📄 License
 
 [MIT License](LICENSE)
+
