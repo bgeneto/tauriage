@@ -2,7 +2,7 @@
 
 **TauriAge** is a modern, cross-platform desktop application for secure file encryption using the [age](https://age-encryption.org/) encryption tool. Built with **Tauri 2.0**, it combines the performance and security of a **Rust** backend with a responsive **React/TypeScript** frontend.
 
-![TauriAge App](app-icon.png)
+![TauriAge App](src-tauri/icons/64x64.png)
 
 ## 🚀 Features
 
@@ -96,4 +96,5 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 📄 License
 
 [MIT License](LICENSE)
+
 
